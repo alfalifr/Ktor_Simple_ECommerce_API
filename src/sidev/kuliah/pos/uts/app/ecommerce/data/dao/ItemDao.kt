@@ -6,7 +6,6 @@ import org.jetbrains.exposed.sql.statements.InsertStatement
 import org.jetbrains.exposed.sql.transactions.transaction
 import sidev.kuliah.pos.uts.app.ecommerce.data.db.ItemStocks
 import sidev.kuliah.pos.uts.app.ecommerce.data.db.Items
-import sidev.kuliah.pos.uts.app.ecommerce.data.db.SimpleDao
 import sidev.kuliah.pos.uts.app.ecommerce.data.model.Item
 import sidev.kuliah.pos.uts.app.ecommerce.data.model.ItemStock
 
@@ -21,10 +20,10 @@ object ItemDao: SimpleDao<Item, Items> {
         row[owner].value,
     )
 
-    override fun onInsert(model: Item): Items.(InsertStatement<Number>) -> Unit = {
-        it[name] = model.name
-        it[price] = model.price
-        it[owner] = model.owner
+    override fun Items.onInsert(insert: InsertStatement<*>, model: Item) {
+        insert[name] = model.name
+        insert[price] = model.price
+        insert[owner] = model.owner
     }
 
     fun readAllByOwner(userId: Int): List<Item> = transaction {
@@ -39,6 +38,10 @@ object ItemDao: SimpleDao<Item, Items> {
         }
         list
     }
+
+    fun deleteAllByOwner(userId: Int): Boolean = transaction {
+        Items.deleteWhere { Items.owner eq userId } > 0
+    }
 }
 
 object ItemStockDao: SimpleDao<ItemStock, ItemStocks> {
@@ -50,9 +53,9 @@ object ItemStockDao: SimpleDao<ItemStock, ItemStocks> {
         row[count],
     )
 
-    override fun onInsert(model: ItemStock): ItemStocks.(InsertStatement<Number>) -> Unit = {
-        it[itemId] = model.itemId
-        it[count] = model.count
+    override fun ItemStocks.onInsert(insert: InsertStatement<*>, model: ItemStock) {
+        insert[itemId] = model.itemId
+        insert[count] = model.count
     }
 
     fun update(itemId: Int, newStock: Int): Boolean = transaction {

@@ -8,6 +8,6 @@ import java.time.LocalDateTime
 
 object Sessions: Table("sessions") {
     val userId = reference(Users.id)
-    val session: Column<String> = varchar("session", 60)
-    val exp: Column<LocalDateTime> = datetime("exp")
+    val session: Column<String> = varchar("session", 20)
+    //val exp: Column<LocalDateTime> = datetime("exp")
 }

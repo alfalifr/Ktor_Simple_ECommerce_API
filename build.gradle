@@ -50,5 +50,7 @@ dependencies {
     implementation "org.ktorm:ktorm-core:3.2.0"
     implementation "org.ktorm:ktorm-support-mysql:3.2.0"
 
+    implementation "com.github.javafaker:javafaker:1.0.2"
+
     testImplementation "io.ktor:ktor-server-tests:$ktor_version"
 }

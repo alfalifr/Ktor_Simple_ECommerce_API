@@ -8,5 +8,5 @@ import java.time.LocalDateTime
 data class Session(
     val userId: Int,
     val session: String,
-    val exp: String,
+    //val exp: String,
 )

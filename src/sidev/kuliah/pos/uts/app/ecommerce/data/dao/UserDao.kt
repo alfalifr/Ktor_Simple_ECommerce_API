@@ -4,7 +4,6 @@ import org.jetbrains.exposed.dao.id.EntityID
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.statements.InsertStatement
 import org.jetbrains.exposed.sql.transactions.transaction
-import sidev.kuliah.pos.uts.app.ecommerce.data.db.SimpleDao
 import sidev.kuliah.pos.uts.app.ecommerce.data.db.Users
 import sidev.kuliah.pos.uts.app.ecommerce.data.model.User
 import sidev.kuliah.pos.uts.app.ecommerce.data.model.UserDetail
@@ -21,14 +20,16 @@ object UserDao: SimpleDao<UserDetail, Users> {
         ),
         row[pswdHash],
         row[balance],
+        row[role].value,
     )
 
-    override fun onInsert(model: UserDetail): Users.(InsertStatement<Number>) -> Unit = {
+    override fun Users.onInsert(insert: InsertStatement<*>, model: UserDetail) {
         val user = model.user
-        it[name] = user.name
-        it[email] = user.email
-        it[pswdHash] = model.pswdHash
-        it[balance] = model.balance
+        insert[name] = user.name
+        insert[email] = user.email
+        insert[pswdHash] = model.pswdHash
+        insert[balance] = model.balance
+        insert[role] = model.roleId
     }
 
     fun readProfile(top: Int = 10): List<User> = transaction {
@@ -62,5 +63,18 @@ object UserDao: SimpleDao<UserDetail, Users> {
 
     fun getBalance(id: Int): Long = transaction {
         Users.select { Users.id eq id }.first()[Users.balance]
+    }
+    fun getRole(id: Int): Int = transaction {
+        Users.select { Users.id eq id }.first()[Users.role].value
+    }
+
+    fun exists(email:String, pswdHash: String): Int = transaction {
+        Users.select { Users.email eq email and (Users.pswdHash eq pswdHash) }.firstOrNull()?.get(Users.id)?.value
+            ?: -1
+    }
+
+    fun existsEmail(email:String): Int = transaction {
+        Users.select { Users.email eq email }.firstOrNull()?.get(Users.id)?.value
+            ?: -1
     }
 }

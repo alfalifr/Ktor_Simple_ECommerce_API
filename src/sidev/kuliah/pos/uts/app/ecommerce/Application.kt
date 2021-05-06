@@ -8,17 +8,19 @@ import io.ktor.routing.*
 import io.ktor.serialization.*
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.SchemaUtils
-import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.transactions.transaction
 //import org.jetbrains.exposed.sql.SchemaUtils
 import org.slf4j.event.Level
+import sidev.kuliah.pos.uts.app.ecommerce.data.dao.RoleDao
 import sidev.kuliah.pos.uts.app.ecommerce.data.dao.UserDao
 import sidev.kuliah.pos.uts.app.ecommerce.data.db.*
+import sidev.kuliah.pos.uts.app.ecommerce.data.model.Datas
 import sidev.kuliah.pos.uts.app.ecommerce.data.model.Role
 import sidev.kuliah.pos.uts.app.ecommerce.data.model.User
 import sidev.kuliah.pos.uts.app.ecommerce.data.model.UserDetail
 import sidev.kuliah.pos.uts.app.ecommerce.routes.authRoutes
-import sidev.kuliah.pos.uts.app.ecommerce.sidev.kuliah.pos.uts.app.ecommerce.data.dao.RoleDao
+import sidev.kuliah.pos.uts.app.ecommerce.util.Const
+import sidev.kuliah.pos.uts.app.ecommerce.util.Util
 
 fun main(args: Array<String>): Unit = io.ktor.server.netty.EngineMain.main(args)
 
@@ -35,7 +37,7 @@ fun Application.module(testing: Boolean = false) {
     }
 
     registerDummyRoutes()
-    initDb()
+    initDb(true)
     registerRoutes()
 /*
     RoleDao.insert(
@@ -45,14 +47,17 @@ fun Application.module(testing: Boolean = false) {
         )
     )
  */
+    val pswd = "ereh"
+    val pswdHsh = Util.sha256(pswd)
+
     UserDao.insert(
         UserDetail(
             User(
                 0,
-                "ayu",
-                "a@a.a"
+                "ayu2",
+                "a2@a.a"
             ),
-            "afafaf",
+            pswdHsh,
             100
         ),
         onError = {
@@ -87,7 +92,7 @@ fun Application.module(testing: Boolean = false) {
 }
 
 
-fun initDb(){
+fun initDb(dropFirst: Boolean = false){
     val url = "jdbc:mysql://admin@127.0.0.1:3306/mytestdb" //?useUnicode=true&serverTimezone=UTC"
     //val url = "jdbc:mysql://root:web@localhost:3306/mytestdb?useUnicode=true&serverTimezone=UTC"
     val driver = "com.mysql.cj.jdbc.Driver"
@@ -99,10 +104,19 @@ fun initDb(){
     //DbConfig.connectDb()
 
     transaction {
+        if(dropFirst){
+            SchemaUtils.drop(
+                Users, Roles, Items, ItemStocks, Sessions, Transactions, TransactionStatuss,
+            )
+        }
         SchemaUtils.create(
             Users, Roles, Items, ItemStocks, Sessions, Transactions, TransactionStatuss,
         )
     }
+}
+
+fun initDbConfig(){
+    RoleDao.batchInsert(*Datas.roles)
 }
 
 fun Application.registerRoutes(){

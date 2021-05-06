@@ -10,6 +10,7 @@ data class UserDetail(
     val user: User,
     val pswdHash: String,
     val balance: Long,
+    val roleId: Int,
 )
 
 /**

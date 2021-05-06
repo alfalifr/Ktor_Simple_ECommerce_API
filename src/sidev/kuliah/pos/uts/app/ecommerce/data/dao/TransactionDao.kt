@@ -1,10 +1,10 @@
-package sidev.kuliah.pos.uts.app.ecommerce.sidev.kuliah.pos.uts.app.ecommerce.data.dao
+package sidev.kuliah.pos.uts.app.ecommerce.data.dao
 
 import org.jetbrains.exposed.dao.id.EntityID
 import org.jetbrains.exposed.sql.Column
 import org.jetbrains.exposed.sql.ResultRow
 import org.jetbrains.exposed.sql.statements.InsertStatement
-import sidev.kuliah.pos.uts.app.ecommerce.data.db.SimpleDao
+import sidev.kuliah.pos.uts.app.ecommerce.data.dao.SimpleDao
 import sidev.kuliah.pos.uts.app.ecommerce.data.db.TransactionStatuss
 import sidev.kuliah.pos.uts.app.ecommerce.data.db.Transactions
 import sidev.kuliah.pos.uts.app.ecommerce.data.model.Transaction
@@ -24,12 +24,12 @@ object TransactionDao: SimpleDao<Transaction, Transactions> {
         row[status].value,
     )
 
-    override fun onInsert(model: Transaction): Transactions.(InsertStatement<Number>) -> Unit = {
-        it[timestamp] = Instant.parse(model.timestamp)
-        it[count] = model.count
-        it[buyer] = model.buyer
-        it[seller] = model.seller
-        it[status] = model.status
+    override fun Transactions.onInsert(insert: InsertStatement<*>, model: Transaction) {
+        insert[timestamp] = Instant.parse(model.timestamp)
+        insert[count] = model.count
+        insert[buyer] = model.buyer
+        insert[seller] = model.seller
+        insert[status] = model.status
     }
 }
 
@@ -42,7 +42,7 @@ object TransactionStatusDao: SimpleDao<TransactionStatus, TransactionStatuss> {
         row[name],
     )
 
-    override fun onInsert(model: TransactionStatus): TransactionStatuss.(InsertStatement<Number>) -> Unit = {
-        it[name] = model.name
+    override fun TransactionStatuss.onInsert(insert: InsertStatement<*>, model: TransactionStatus) {
+        insert[name] = model.name
     }
 }
