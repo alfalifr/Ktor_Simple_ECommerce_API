@@ -64,7 +64,9 @@ interface SimpleDao<M, T: Table> {
         idsContainer: MutableList<Int>?= null,
     ): Int = transaction {
         try {
+            println("batchInsert() models= ${models.joinToString()}")
             val resultRows = table.batchInsert(models.asList(), body = onBatchInsert())
+            println("batchInsert() resultRows.size= ${resultRows.size}")
             //val ids = mutableListOf<Int>()
 
             if(tableId != null && table is IdTable<*> && idsContainer != null){
@@ -75,6 +77,7 @@ interface SimpleDao<M, T: Table> {
             }
             resultRows.size
         } catch (e: Exception){
+            e.printStackTrace()
             onError?.invoke(e)
             0
         }

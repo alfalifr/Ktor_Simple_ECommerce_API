@@ -39,7 +39,11 @@ object Util {
         }
         return faker.bothify(b.toString())
     }
-
+/*
+    fun String.replacePlaceholder(vararg vals: String): String {
+        replace("\\{.+\\}".toRegex(), vals)
+    }
+ */
     fun Map<*, *>.toJsonString(): String = gson.toJson(this)
 
     fun simpleRespond(value: Any): Map<String, Any> = mapOf("message" to value)

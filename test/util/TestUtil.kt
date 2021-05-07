@@ -13,6 +13,16 @@ object TestUtil {
             route.method,
             if(params.isEmpty()) route.completeUrl()
             else route.completeUrlWithParam(*params),
-            setup
+            setup,
+    )
+    fun TestApplicationEngine.requestWithPath(
+            route: AppRoute,
+            vararg paths: Pair<String, String>,
+            setup: TestApplicationRequest.() -> Unit = {}
+    ) = handleRequest(
+            route.method,
+            if(paths.isEmpty()) route.completeUrl()
+            else route.completeUrlWithPath(*paths),
+            setup,
     )
 }

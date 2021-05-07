@@ -27,6 +27,13 @@ interface AppRoute: Child<AppRoute> {
     fun completeUrl(): String = if(parent != null) "${parent!!.completeUrl()}/${url()}" else url()
     fun completeUrlWithParam(vararg pairs: Pair<String, String>): String =
             "${completeUrl()}?${pairs.asList().formUrlEncode()}"
+    fun completeUrlWithPath(vararg pairs: Pair<String, String>): String {
+        var res = completeUrl()
+        for((key, value) in pairs){
+            res = res.replaceFirst("{$key}", value)
+        }
+        return res
+    }
     fun url(): String
     suspend fun doOp(pipeline: PipelineContext<Unit, ApplicationCall>): Boolean = true
 }

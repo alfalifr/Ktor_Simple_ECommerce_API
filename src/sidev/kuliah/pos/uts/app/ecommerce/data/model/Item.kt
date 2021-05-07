@@ -1,6 +1,8 @@
 package sidev.kuliah.pos.uts.app.ecommerce.data.model
 
+import kotlinx.serialization.Serializable
 import org.jetbrains.exposed.sql.Query
+import org.jetbrains.exposed.sql.transactions.transaction
 import sidev.kuliah.pos.uts.app.ecommerce.data.db.ItemStocks
 import sidev.kuliah.pos.uts.app.ecommerce.data.db.Items
 import java.lang.IllegalArgumentException
@@ -17,6 +19,7 @@ data class ItemStock(
     val count: Int,
 )
 
+@Serializable
 data class ItemDisplay(
     val id: Int,
     val name: String,
@@ -35,13 +38,15 @@ data class ItemDisplay(
                 join(item, stocks[index])
             }
 
-        fun from(q: Query): List<ItemDisplay> = q.map {
-            ItemDisplay(
-                it[Items.id].value,
-                it[Items.name],
-                it[Items.price],
-                it[ItemStocks.count],
-            )
+        fun from(q: Query): List<ItemDisplay> = transaction {
+            q.map {
+                ItemDisplay(
+                    it[Items.id].value,
+                    it[Items.name],
+                    it[Items.price],
+                    it[ItemStocks.count],
+                )
+            }
         }
     }
 }

@@ -97,7 +97,7 @@ object ItemRoutes: AppRoute {
         val itemStocks = ItemStockDao.read(20)
         val itemDisplays = ItemDisplay.join(items, itemStocks)
 
-        call.respond(itemDisplays)
+        call.respondText(Util.gson.toJson(itemDisplays))
         super.doOp(this)
     })
 
@@ -180,10 +180,14 @@ object ItemRoutes: AppRoute {
                     HttpStatusCode.BadRequest,
             )
         }
-        val rows = (Items fullJoin ItemStocks).select { Items.id eq sellerId }
+        println("routeb sellerId = $sellerId")
+
+        val rows = (Items leftJoin ItemStocks).select { Items.owner eq sellerId }
         val itemDisplays = ItemDisplay.from(rows)
 
-        call.respond(itemDisplays)
+        println("routeb itemDisplays = $itemDisplays")
+
+        call.respondText(Util.gson.toJson(itemDisplays))
         super.doOp(this)
     })
 

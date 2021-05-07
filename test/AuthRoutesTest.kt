@@ -28,14 +28,14 @@ class AuthRoutesTest {
     fun _1signupTest() {
         withTestApplication({ module(testing = true, recreateTable = true) }) {
             val call = request(AuthRoutes.SignUp) {
-                setBody(TestData.signupData.toJsonString())
+                setBody(TestData.signupData_seller1.toJsonString())
             }
             call.apply {
                 assertEquals(HttpStatusCode.OK, response.status())
             }
 
             //Verify
-            val user = TestData.user
+            val user = TestData.sellerDetail1
             val userFromQuery = UserDao.readById(user.user.id)
 
             assertNotNull(userFromQuery)
@@ -46,7 +46,7 @@ class AuthRoutesTest {
     @Test
     fun _2loginTest() {
         withTestApplication({ module(testing = true) }) {
-            val call = request(AuthRoutes.Login, *TestData.loginData)
+            val call = request(AuthRoutes.Login, *TestData.loginData1)
             call.apply {
                 val _token = response.content
 
@@ -60,7 +60,7 @@ class AuthRoutesTest {
             }
 
             //Verify
-            val hasLoggedIn = SessionDao.hasLoggedIn(TestData.user.user.id)
+            val hasLoggedIn = SessionDao.hasLoggedIn(TestData.sellerDetail1.user.id)
             assert(hasLoggedIn)
         }
     }
@@ -69,7 +69,7 @@ class AuthRoutesTest {
     fun _3logoutTest() {
         println("token= $token")
         withTestApplication({ module(testing = true) }) {
-            val call = request(AuthRoutes.Logout, *TestData.loginData) {
+            val call = request(AuthRoutes.Logout, *TestData.loginData1) {
                 addHeader(HttpHeaders.Authorization, token)
             }
             call.apply {
@@ -77,7 +77,7 @@ class AuthRoutesTest {
             }
 
             //Verify
-            val hasLoggedIn = SessionDao.hasLoggedIn(TestData.user.user.id)
+            val hasLoggedIn = SessionDao.hasLoggedIn(TestData.sellerDetail1.user.id)
             assert(!hasLoggedIn)
         }
     }

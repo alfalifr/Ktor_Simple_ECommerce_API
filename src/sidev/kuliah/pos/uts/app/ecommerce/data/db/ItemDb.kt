@@ -18,6 +18,6 @@ object Items: IdTable<Int>("items") {
 }
 
 object ItemStocks: Table("item_stocks") {
-    val itemId = integer("item_id").references(Users.id)
+    val itemId = integer("item_id").references(Items.id)
     val count = integer("count")
 }
