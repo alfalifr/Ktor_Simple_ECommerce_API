@@ -14,10 +14,10 @@ import java.time.LocalDateTime
 
 object SessionDao: SimpleDao<Session, Sessions> {
     override val table: Sessions = Sessions
-    override val tableId: Column<EntityID<Int>>? = Sessions.userId
+    override val tableId: Column<EntityID<Int>>? = null //Sessions.userId
 
     override fun Sessions.generateModel(row: ResultRow): Session = Session(
-        row[userId].value,
+        row[userId],
         row[session],
         //row[exp].toString(),
     )
@@ -28,7 +28,7 @@ object SessionDao: SimpleDao<Session, Sessions> {
     }
 
     fun exists(token: String): Int = transaction {
-        Sessions.select { Sessions.session eq token }.firstOrNull()?.get(Sessions.userId)?.value
+        Sessions.select { Sessions.session eq token }.firstOrNull()?.get(Sessions.userId)
             ?: -1
     }
     fun hasLoggedIn(userId: Int): Boolean = transaction {

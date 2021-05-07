@@ -12,6 +12,7 @@ import org.jetbrains.exposed.sql.transactions.transaction
 //import org.jetbrains.exposed.sql.SchemaUtils
 import org.slf4j.event.Level
 import sidev.kuliah.pos.uts.app.ecommerce.data.dao.RoleDao
+import sidev.kuliah.pos.uts.app.ecommerce.data.dao.TransactionStatusDao
 import sidev.kuliah.pos.uts.app.ecommerce.data.dao.UserDao
 import sidev.kuliah.pos.uts.app.ecommerce.data.db.*
 import sidev.kuliah.pos.uts.app.ecommerce.data.model.Datas
@@ -19,6 +20,7 @@ import sidev.kuliah.pos.uts.app.ecommerce.data.model.Role
 import sidev.kuliah.pos.uts.app.ecommerce.data.model.User
 import sidev.kuliah.pos.uts.app.ecommerce.data.model.UserDetail
 import sidev.kuliah.pos.uts.app.ecommerce.routes.authRoutes
+import sidev.kuliah.pos.uts.app.ecommerce.routes.itemRoutes
 import sidev.kuliah.pos.uts.app.ecommerce.util.Const
 import sidev.kuliah.pos.uts.app.ecommerce.util.Util
 
@@ -26,7 +28,7 @@ fun main(args: Array<String>): Unit = io.ktor.server.netty.EngineMain.main(args)
 
 @Suppress("unused") // Referenced in application.conf
 @kotlin.jvm.JvmOverloads
-fun Application.module(testing: Boolean = false) {
+fun Application.module(testing: Boolean = false, recreateTable: Boolean = false) {
     install(CallLogging) {
         level = Level.INFO
         filter { call -> call.request.path().startsWith("/") }
@@ -37,35 +39,9 @@ fun Application.module(testing: Boolean = false) {
     }
 
     registerDummyRoutes()
-    initDb(true)
+    initDb(recreateTable)
+    initDbConfig()
     registerRoutes()
-/*
-    RoleDao.insert(
-        Role(
-            1,
-            "Pekerja"
-        )
-    )
- */
-    val pswd = "ereh"
-    val pswdHsh = Util.sha256(pswd)
-
-    UserDao.insert(
-        UserDetail(
-            User(
-                0,
-                "ayu2",
-                "a2@a.a"
-            ),
-            pswdHsh,
-            100
-        ),
-        onError = {
-            println("Error = $it")
-        }
-    ) {
-        println("new id = $it")
-    }
 
 /*
     val client = HttpClient() {
@@ -117,11 +93,13 @@ fun initDb(dropFirst: Boolean = false){
 
 fun initDbConfig(){
     RoleDao.batchInsert(*Datas.roles)
+    TransactionStatusDao.batchInsert(*Datas.transStatus)
 }
 
 fun Application.registerRoutes(){
     routing {
         authRoutes()
+        itemRoutes()
     }
 }
 

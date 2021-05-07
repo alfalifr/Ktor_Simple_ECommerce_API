@@ -17,7 +17,7 @@ object ItemDao: SimpleDao<Item, Items> {
         row[id].value,
         row[name],
         row[price],
-        row[owner].value,
+        row[owner],
     )
 
     override fun Items.onInsert(insert: InsertStatement<*>, model: Item) {
@@ -33,7 +33,7 @@ object ItemDao: SimpleDao<Item, Items> {
                 it[Items.id].value,
                 it[Items.name],
                 it[Items.price],
-                it[Items.owner].value,
+                it[Items.owner],
             )
         }
         list
@@ -42,14 +42,18 @@ object ItemDao: SimpleDao<Item, Items> {
     fun deleteAllByOwner(userId: Int): Boolean = transaction {
         Items.deleteWhere { Items.owner eq userId } > 0
     }
+
+    fun getOwnerId(itemId: Int): Int = transaction {
+        Items.select { Items.id eq itemId }.firstOrNull()?.get(Items.owner) ?: -1
+    }
 }
 
 object ItemStockDao: SimpleDao<ItemStock, ItemStocks> {
     override val table: ItemStocks = ItemStocks
-    override val tableId: Column<EntityID<Int>>? = ItemStocks.itemId
+    override val tableId: Column<EntityID<Int>>? = null //ItemStocks.itemId
 
     override fun ItemStocks.generateModel(row: ResultRow): ItemStock = ItemStock(
-        row[itemId].value,
+        row[itemId],
         row[count],
     )
 

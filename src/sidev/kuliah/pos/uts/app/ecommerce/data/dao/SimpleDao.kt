@@ -7,6 +7,7 @@ import org.jetbrains.exposed.sql.statements.BatchInsertStatement
 import org.jetbrains.exposed.sql.statements.InsertStatement
 import org.jetbrains.exposed.sql.transactions.transaction
 import sidev.kuliah.pos.uts.app.ecommerce.data.db.Users
+import java.lang.IllegalArgumentException
 
 interface SimpleDao<M, T: Table> {
     val table: T
@@ -60,22 +61,22 @@ interface SimpleDao<M, T: Table> {
     fun batchInsert(
         vararg models: M,
         onError: ((Exception) -> Unit)?= null,
-        onIdGenerated: ((Int) -> Unit)?= null,
-    ): List<Int> = transaction {
+        idsContainer: MutableList<Int>?= null,
+    ): Int = transaction {
         try {
             val resultRows = table.batchInsert(models.asList(), body = onBatchInsert())
-            val ids = mutableListOf<Int>()
+            //val ids = mutableListOf<Int>()
 
-            if(tableId != null && table is IdTable<*>){
+            if(tableId != null && table is IdTable<*> && idsContainer != null){
                 val tableId = tableId!!
                 for(row in resultRows){
-                    ids += row[tableId].value
+                    idsContainer += row[tableId].value
                 }
             }
-            ids
+            resultRows.size
         } catch (e: Exception){
             onError?.invoke(e)
-            emptyList()
+            0
         }
     }
 /*
@@ -89,7 +90,7 @@ interface SimpleDao<M, T: Table> {
         }
     }
  */
-    fun deleteById(id: Int, op: SqlExpressionBuilder.() -> Op<Boolean>): Boolean = transaction {
-        table.deleteWhere(op = op) == 1
+    fun deleteById(id: Int, op: (SqlExpressionBuilder.() -> Op<Boolean>)?= null): Boolean = transaction {
+        table.deleteWhere { tableId?.eq(id) ?: op?.invoke(this) ?: throw IllegalArgumentException() } == 1
     }
 }

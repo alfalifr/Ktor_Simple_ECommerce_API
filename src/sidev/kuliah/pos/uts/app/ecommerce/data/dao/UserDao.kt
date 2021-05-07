@@ -2,6 +2,7 @@ package sidev.kuliah.pos.uts.app.ecommerce.data.dao
 
 import org.jetbrains.exposed.dao.id.EntityID
 import org.jetbrains.exposed.sql.*
+import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.statements.InsertStatement
 import org.jetbrains.exposed.sql.transactions.transaction
 import sidev.kuliah.pos.uts.app.ecommerce.data.db.Users
@@ -20,7 +21,7 @@ object UserDao: SimpleDao<UserDetail, Users> {
         ),
         row[pswdHash],
         row[balance],
-        row[role].value,
+        row[role],
     )
 
     override fun Users.onInsert(insert: InsertStatement<*>, model: UserDetail) {
@@ -62,10 +63,12 @@ object UserDao: SimpleDao<UserDetail, Users> {
     }
 
     fun getBalance(id: Int): Long = transaction {
-        Users.select { Users.id eq id }.first()[Users.balance]
+        Users.select { Users.id eq id }.firstOrNull()?.get(Users.balance)
+                ?: -1
     }
     fun getRole(id: Int): Int = transaction {
-        Users.select { Users.id eq id }.first()[Users.role].value
+        Users.select { Users.id eq id }.firstOrNull()?.get(Users.role)
+                ?: -1
     }
 
     fun exists(email:String, pswdHash: String): Int = transaction {

@@ -7,6 +7,7 @@ import kotlinx.css.CSSBuilder
 import kotlinx.html.CommonAttributeGroupFacade
 import kotlinx.html.FlowOrMetaDataContent
 import kotlinx.html.style
+import org.jetbrains.exposed.dao.id.EntityID
 import org.jetbrains.exposed.sql.Column
 import org.jetbrains.exposed.sql.Table
 
@@ -28,4 +29,5 @@ suspend inline fun ApplicationCall.respondCss(builder: CSSBuilder.() -> Unit) {
 }
 
 
-fun <T: Comparable<T>> Table.reference(col: Column<T>, name: String? = null): Column<T> = reference(name ?: "${col.table.tableName}_${col.name}", col)
+fun <T: Comparable<T>> Table.reference(col: Column<T>, name: String? = null): Column<T> =
+        reference(name ?: "${col.table.tableName}_${col.name}", col)

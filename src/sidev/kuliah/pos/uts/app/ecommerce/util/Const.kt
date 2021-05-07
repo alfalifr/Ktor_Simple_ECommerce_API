@@ -13,6 +13,9 @@ object Const {
     const val KEY_STOCK = "price"
     const val ROLE_SELLER = "Seller"
     const val ROLE_BUYER = "Buyer"
+    const val STATUS_ORDER = "Ordered"
+    const val STATUS_APPROVE = "Approved"
+    const val STATUS_PAY = "Paid"
     const val SHA_256 = "SHA-256"
     const val TOKEN_LEN = 20
     const val CONTINUE = 1

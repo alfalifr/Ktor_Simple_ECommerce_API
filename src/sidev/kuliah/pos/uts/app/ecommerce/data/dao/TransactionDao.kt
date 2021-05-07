@@ -19,9 +19,9 @@ object TransactionDao: SimpleDao<Transaction, Transactions> {
         row[id].value,
         row[timestamp].toString(),
         row[count],
-        row[buyer].value,
-        row[seller].value,
-        row[status].value,
+        row[buyer],
+        row[seller],
+        row[status],
     )
 
     override fun Transactions.onInsert(insert: InsertStatement<*>, model: Transaction) {

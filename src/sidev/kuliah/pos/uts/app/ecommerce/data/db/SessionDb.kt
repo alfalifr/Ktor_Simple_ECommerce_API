@@ -7,7 +7,7 @@ import sidev.kuliah.pos.uts.app.ecommerce.util.reference
 import java.time.LocalDateTime
 
 object Sessions: Table("sessions") {
-    val userId = reference(Users.id)
+    val userId = integer("user_id").references(Users.id)
     val session: Column<String> = varchar("session", 20)
     //val exp: Column<LocalDateTime> = datetime("exp")
 }

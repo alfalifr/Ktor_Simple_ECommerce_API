@@ -8,6 +8,7 @@ import io.ktor.http.*
 import io.ktor.request.*
 import io.ktor.response.*
 import io.ktor.routing.*
+import io.ktor.util.pipeline.*
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonElement
@@ -26,7 +27,13 @@ import sidev.kuliah.pos.uts.app.ecommerce.util.Util.simpleRespond
 import java.security.MessageDigest
 
 fun Route.authRoutes(){
-    route(AppRoutes.Auth.completeUrl()) {
+    route(AuthRoutes){
+        register(AuthRoutes.SignUp)
+        register(AuthRoutes.Login)
+        register(AuthRoutes.Logout)
+    }
+/*
+    route(AuthRoutes.completeUrl()) {
         post(AppRoutes.Auth.SignUp.url()) {
             val body = call.receiveText()
             val gson = Gson()
@@ -110,4 +117,112 @@ fun Route.authRoutes(){
             }
         }
     }
+ */
+}
+
+
+object AuthRoutes: AppRoute {
+    override val parent: AppRoute? = null
+    override val method: HttpMethod = HttpMethod.Get
+    override fun url(): String = "auth"
+
+    object SignUp: AppRoute by post("signup", {
+        val body = call.receiveText()
+        val gson = Gson()
+
+        val user= gson.fromJson(body, User::class.java)
+
+        if(UserDao.existsEmail(user.email) < 0){
+            val userDetailInit= gson.fromJson(body, UserDetail::class.java)
+            val json = JsonParser.parseString(body).asJsonObject
+
+            println("user= $user")
+            println("userDetailInit= $userDetailInit")
+
+            val pswd = json.getAsJsonPrimitive("password").asString // not hashed cuz it is from form
+            val pswdHash = Util.sha256(pswd)
+
+            val userDetail = userDetailInit.copy(user = user, pswdHash = pswdHash)
+            println("userDetail= $userDetail")
+
+            var e: Exception?= null
+            var newId: Int?= null
+            val success = UserDao.insert(userDetail, {
+                e = it
+            }) {
+                newId = it
+            }
+            if(success){
+                call.simpleOkRespond()
+            } else {
+                call.simpleRespond("internal error", HttpStatusCode.InternalServerError)
+            }
+        } else {
+            call.simpleRespond("email already exists", HttpStatusCode.Conflict)
+        }
+        true
+    })
+
+    object Login: AppRoute by get("login", {
+        val params = call.parameters
+        val email = params[Const.KEY_EMAIL] ?: return@get false.also {
+            call.respondText(
+                    "Expecting for email",
+                    status = HttpStatusCode.BadRequest,
+            )
+        }
+        val pswd = params[Const.KEY_PSWD] ?: return@get false.also {
+            call.respondText(
+                "Expecting for password",
+                status = HttpStatusCode.BadRequest,
+            )
+        }
+        val pswdHash = Util.sha256(pswd)
+
+        println("Login params= $params")
+        println("Login email= $email")
+        println("Login pswd= $pswd")
+        println("Login pswdHash= $pswdHash")
+
+        var userId: Int
+        if(UserDao.exists(email, pswdHash).also { userId = it } > -1){
+            if(!SessionDao.hasLoggedIn(userId)){
+                var token: String
+                do {
+                    token = Util.randomStr()
+                } while(SessionDao.exists(token) >= 0)
+
+                val session = Session(userId, token)
+                SessionDao.insert(session)
+                call.respond(token)
+            } else {
+                call.simpleRespond("the user has currently logged in", HttpStatusCode.Forbidden)
+            }
+        } else {
+            call.simpleRespond("email or password invalid", HttpStatusCode.NotFound)
+        }
+        true
+    })
+
+    object Logout: AppRoute by get("logout", {
+        val headers = call.request.headers
+        val rawToken = headers[Const.KEY_AUTH] ?: return@get false.also {
+            call.simpleRespond(
+                    "forbidden access",
+                    HttpStatusCode.Forbidden
+            )
+        }
+        val token = rawToken.split(" ").last()
+
+        if(SessionDao.exists(token) >= 0){
+            if(SessionDao.deleteByToken(token)){
+                call.simpleOkRespond()
+            } else {
+                call.simpleRespond("internal error while logout", HttpStatusCode.InternalServerError)
+            }
+        } else {
+            call.simpleRespond("token not found", HttpStatusCode.NotFound)
+        }
+        true
+    })
 }

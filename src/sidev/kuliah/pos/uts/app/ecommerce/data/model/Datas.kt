@@ -6,8 +6,17 @@ object Datas {
     const val ID_SELLER = 1
     const val ID_BUYER = 2
 
+    const val ID_BUY = 1
+    const val ID_APPROVE = 2
+    const val ID_PAY = 3
+
     val roles = arrayOf(
         Role(ID_SELLER, Const.ROLE_SELLER),
         Role(ID_BUYER, Const.ROLE_BUYER),
+    )
+    val transStatus = arrayOf(
+        TransactionStatus(ID_BUY, Const.STATUS_ORDER),
+        TransactionStatus(ID_APPROVE, Const.STATUS_APPROVE),
+        TransactionStatus(ID_PAY, Const.STATUS_PAY),
     )
 }

@@ -11,15 +11,15 @@ object Transactions: IdTable<Int>("transactions") {
     override val id: Column<EntityID<Int>> = integer("id").entityId().autoIncrement()
     val timestamp = timestamp("timestamp")
     val count = integer("count")
-    val buyer = reference(Users.id, "buyer_id")
-    val seller = reference(Users.id, "seller_id")
-    val status = reference(TransactionStatuss.id)
+    val buyer = integer("buyer_id").references(Users.id)
+    val seller = integer("seller_id").references(Users.id)
+    val status = integer("statud_id").references(TransactionStatuss.id)
 
     override val primaryKey: PrimaryKey? = PrimaryKey(id)
 }
 
 object TransactionStatuss: IdTable<Int>("transaction_status") {
-    override val id: Column<EntityID<Int>> = integer("id").entityId().autoIncrement()
+    override val id: Column<EntityID<Int>> = integer("id").autoIncrement().entityId()
     val name = varchar("name", 20)
 
     override val primaryKey: PrimaryKey? = PrimaryKey(id)

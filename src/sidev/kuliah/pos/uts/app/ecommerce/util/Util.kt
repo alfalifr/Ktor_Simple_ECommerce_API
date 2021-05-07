@@ -1,6 +1,7 @@
 package sidev.kuliah.pos.uts.app.ecommerce.util
 
 import com.github.javafaker.Faker
+import com.google.gson.Gson
 import io.ktor.application.*
 import io.ktor.http.*
 import io.ktor.response.*
@@ -14,6 +15,7 @@ object Util {
         get()= MessageDigest.getInstance(Const.SHA_256)
     private val maskChar = arrayOf('?', '#')
     val faker = Faker()
+    val gson by lazy { Gson() }
 
     fun sha256(raw: String): String = bytesToHex(sha256.digest(raw.toByteArray()))
 
@@ -38,8 +40,12 @@ object Util {
         return faker.bothify(b.toString())
     }
 
+    fun Map<*, *>.toJsonString(): String = gson.toJson(this)
+
     fun simpleRespond(value: Any): Map<String, Any> = mapOf("message" to value)
     suspend fun ApplicationCall.simpleRespond(value: Any, status: HttpStatusCode = HttpStatusCode.OK): Unit = respond(status, mapOf("message" to value))
     suspend fun ApplicationCall.simpleFailRespond(): Unit = simpleRespond("not ok", HttpStatusCode.BadRequest)
     suspend fun ApplicationCall.simpleOkRespond(): Unit = simpleRespond("ok")
+    suspend fun ApplicationCall.simpleForbiddenRespond(): Unit = simpleRespond("forbidden access", HttpStatusCode.Forbidden)
+    suspend fun ApplicationCall.simpleInternalErrorRespond(): Unit = simpleRespond("internal error", HttpStatusCode.InternalServerError)
 }
