@@ -83,6 +83,10 @@ object TestData {
             Const.KEY_ITEM_ID to updatedStockId1,
             Const.KEY_COUNT to Dummy.item1_index2_buyCount2,
     )
+    val buyData1_3 = mapOf(
+            Const.KEY_ITEM_ID to updatedStockId1,
+            Const.KEY_COUNT to Dummy.item1_index2_buyCount3,
+    )
     val buyData2_1 = mapOf(
             Const.KEY_ITEM_ID to updatedStockId2,
             Const.KEY_COUNT to Dummy.item2_index1_buyCount1,
@@ -94,8 +98,9 @@ object TestData {
 
     val expectedBuyId1_1 = 1
     val expectedBuyId1_2 = 3
+    val expectedBuyId1_3 = 4
     val expectedBuyId2_1 = 2
-    val expectedBuyId2_2 = 4
+    val expectedBuyId2_2 = 5
 
     val expectedBuy1_1 = Transaction(
             expectedBuyId1_1,
@@ -111,6 +116,15 @@ object TestData {
             "",
             buyData1_2[Const.KEY_ITEM_ID]!!,
             buyData1_2[Const.KEY_COUNT]!!,
+            buyerDetail.user.id,
+            sellerDetail1.user.id,
+            Datas.ID_BUY,
+    )
+    val expectedBuy1_3 = Transaction(
+            expectedBuyId1_3,
+            "",
+            buyData1_3[Const.KEY_ITEM_ID]!!,
+            buyData1_3[Const.KEY_COUNT]!!,
             buyerDetail.user.id,
             sellerDetail1.user.id,
             Datas.ID_BUY,
@@ -140,8 +154,10 @@ object TestData {
 
     val expectedBuyerBalance1 = Dummy.buyerBalanceInit - Dummy.totalPriceBuy1_1
     val expectedBuyerBalance2 = Dummy.buyerBalanceInit - Dummy.totalPriceBuy1_1 - Dummy.totalPriceBuy2_1
+    val expectedBuyerBalance3 = Dummy.buyerBalanceInit - Dummy.totalPriceBuy1_1 - Dummy.totalPriceBuy2_1 - Dummy.totalPriceBuy1_2
     val expectedBuyerFinalBalance = Dummy.buyerBalanceRemain
 
-    val expectedSellerBalance1 = Dummy.sellerBalance1_1
+    val expectedSellerBalance1_1 = Dummy.sellerBalance1_1
+    val expectedSellerBalance1_2 = Dummy.sellerBalance1_2
     val expectedSellerBalance2 = Dummy.sellerBalance2_1
 }

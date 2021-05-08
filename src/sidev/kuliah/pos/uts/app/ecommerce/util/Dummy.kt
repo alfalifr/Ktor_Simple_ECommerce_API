@@ -54,13 +54,15 @@ object Dummy {
     val item1_index2_stock = 10
     val item2_index1_stock = 23
 
-    val item1_index2_buyCount1 = 7
-    val item1_index2_buyCount2 = 4
+    val item1_index2_buyCount1 = 5
+    val item1_index2_buyCount2 = 3
+    val item1_index2_buyCount3 = 4
 
     val item2_index1_buyCount1 = 9
     val item2_index1_buyCount2 = 12
 
     val totalPriceBuy1_1 = items1[2].price * item1_index2_buyCount1
+    val totalPriceBuy1_2 = items1[2].price * item1_index2_buyCount2
     val totalPriceBuy2_1 = items2[1].price * item2_index1_buyCount1
 
     val buyerTotalPriceBuyBalance1_1 = items1[2].price * 9
@@ -69,9 +71,11 @@ object Dummy {
     val buyerBalanceInit = buyerTotalPriceBuyBalance1_1 + buyerTotalPriceBuyBalance2_1
     val buyerBalanceRemain = buyerBalanceInit -
             totalPriceBuy1_1 -
-            totalPriceBuy2_1
+            totalPriceBuy2_1 -
+            totalPriceBuy1_2
 
     val sellerBalance1_1 = sellerBalanceInit1 + totalPriceBuy1_1
+    val sellerBalance1_2 = sellerBalanceInit1 + totalPriceBuy1_1 + totalPriceBuy1_2
     val sellerBalance2_1 = sellerBalanceInit2 + totalPriceBuy2_1
 
 

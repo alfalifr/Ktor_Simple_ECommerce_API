@@ -120,7 +120,7 @@ class TransactionRoutesTest {
     }
 
     @Test
-    fun _2_1orderConflictTest() = _2orderConflictTest(TestData.buyData1_2)
+    fun _2_1orderConflictTest() = _2orderConflictTest(TestData.buyData1_3)
     @Test
     fun _2_2orderConflictTest() = _2orderConflictTest(TestData.buyData2_2)
 
@@ -192,7 +192,7 @@ class TransactionRoutesTest {
     }
 
     @Test
-    fun _4_1paySuccessTest() = _4paySuccessTest(TestData.expectedBuyId1_1, TestData.expectedSellerBalance1, TestData.expectedBuyerBalance1)
+    fun _4_1paySuccessTest() = _4paySuccessTest(TestData.expectedBuyId1_1, TestData.expectedSellerBalance1_1, TestData.expectedBuyerBalance1)
     @Test
     fun _4_2paySuccessTest() = _4paySuccessTest(TestData.expectedBuyId2_1, TestData.expectedSellerBalance2, TestData.expectedBuyerBalance2)
 
@@ -220,12 +220,18 @@ class TransactionRoutesTest {
     }
 
     @Test
-    fun _5_1orderOutOfStockTest() = _5orderBadBusinessLogicTest(TestData.buyData1_2, Const.MSG_INSUFFICIENT_STOCK)
+    fun _5_1order2SuccessTest() = _1orderSuccessTest(TestData.buyData1_2, TestData.expectedBuy1_2)
+    @Test
+    fun _5_2approve2SuccessTest() = _3approveSuccessTest(TestData.expectedBuyId1_2, tokenSeller1)
+    @Test
+    fun _5_3pay2SuccessTest() = _4paySuccessTest(TestData.expectedBuyId1_2, TestData.expectedSellerBalance1_2, TestData.expectedBuyerBalance3)
 
     @Test
-    fun _5_2orderInsufficientBalanceTest() = _5orderBadBusinessLogicTest(TestData.buyData2_2, Const.MSG_INSUFFICIENT_BALANCE)
+    fun _6_1orderOutOfStockTest() = _6orderBadBusinessLogicTest(TestData.buyData1_3, Const.MSG_INSUFFICIENT_STOCK)
+    @Test
+    fun _6_2orderInsufficientBalanceTest() = _6orderBadBusinessLogicTest(TestData.buyData2_2, Const.MSG_INSUFFICIENT_BALANCE)
 
-    fun _5orderBadBusinessLogicTest(buyData: Map<String, Int>, expectedMsg: String) {
+    fun _6orderBadBusinessLogicTest(buyData: Map<String, Int>, expectedMsg: String) {
         withTestApplication({ module(testing = true) }) {
             request(TransactionRoutes.Order) {
                 addHeader(HttpHeaders.Authorization, tokenBuyer)
