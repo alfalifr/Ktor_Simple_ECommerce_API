@@ -6,9 +6,11 @@ import sidev.kuliah.pos.uts.app.ecommerce.data.model.Transaction
 
 object TestData {
     val sellerDetail1 = Dummy.sellerDetail1
+    val sellerDetail1_2 = sellerDetail1.copy(user = sellerDetail1.user.copy(name = "Pak Bejo"))
     val sellerDetail2 = Dummy.sellerDetail2
     val buyerDetail = Dummy.buyerDetail
     val sellerPswd1 = Dummy.sellerPswd1
+    val sellerPswd1_2 = "ereho"
     val sellerPswd2 = Dummy.sellerPswd2
     val buyerPswd = Dummy.buyerPswd
 
@@ -18,6 +20,13 @@ object TestData {
             "email" to sellerDetail1.user.email,
             "roleId" to sellerDetail1.roleId,
             "balance" to sellerDetail1.balance,
+    )
+    val signupData_seller1_2 = mapOf(
+            "name" to sellerDetail1_2.user.name,
+            "password" to sellerPswd1,
+            "email" to sellerDetail1_2.user.email,
+            "roleId" to sellerDetail1_2.roleId,
+            "balance" to sellerDetail1_2.balance,
     )
     val signupData_seller2 = mapOf(
             "name" to sellerDetail2.user.name,
@@ -36,6 +45,10 @@ object TestData {
     val loginData1 = arrayOf(
             "email" to sellerDetail1.user.email,
             "password" to sellerPswd1,
+    )
+    val loginData1_2 = arrayOf(
+            "email" to sellerDetail1.user.email,
+            "password" to sellerPswd1_2,
     )
     val loginData2 = arrayOf(
             "email" to sellerDetail2.user.email,

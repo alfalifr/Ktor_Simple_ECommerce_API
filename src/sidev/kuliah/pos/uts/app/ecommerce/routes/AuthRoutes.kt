@@ -14,8 +14,12 @@ import sidev.kuliah.pos.uts.app.ecommerce.data.model.User
 import sidev.kuliah.pos.uts.app.ecommerce.data.model.UserDetail
 import sidev.kuliah.pos.uts.app.ecommerce.util.Const
 import sidev.kuliah.pos.uts.app.ecommerce.util.Util
+import sidev.kuliah.pos.uts.app.ecommerce.util.Util.simpleForbiddenRespond
+import sidev.kuliah.pos.uts.app.ecommerce.util.Util.simpleInternalErrorRespond
+import sidev.kuliah.pos.uts.app.ecommerce.util.Util.simpleNotFoundRespond
 import sidev.kuliah.pos.uts.app.ecommerce.util.Util.simpleOkRespond
 import sidev.kuliah.pos.uts.app.ecommerce.util.Util.simpleRespond
+import sidev.kuliah.pos.uts.app.ecommerce.util.Util.simpleUnauthRespond
 
 fun Route.authRoutes(){
     route(AuthRoutes){
@@ -146,10 +150,10 @@ object AuthRoutes: AppRoute {
             if(success){
                 call.simpleOkRespond()
             } else {
-                call.simpleRespond("internal error", HttpStatusCode.InternalServerError)
+                call.simpleInternalErrorRespond()
             }
         } else {
-            call.simpleRespond("email already exists", HttpStatusCode.Conflict)
+            call.simpleRespond(Const.MSG_EMAIL_EXISTS, HttpStatusCode.Conflict)
         }
         true
     })
@@ -187,10 +191,10 @@ object AuthRoutes: AppRoute {
                 SessionDao.insert(session)
                 call.respond(token)
             } else {
-                call.simpleRespond("the user has currently logged in", HttpStatusCode.Forbidden)
+                call.simpleForbiddenRespond("the user has currently logged in")
             }
         } else {
-            call.simpleRespond("email or password invalid", HttpStatusCode.NotFound)
+            call.simpleNotFoundRespond(Const.MSG_INVALID_EMAIL_PASSWORD)
         }
         true
     })
@@ -198,10 +202,7 @@ object AuthRoutes: AppRoute {
     object Logout: AppRoute by get("logout", {
         val headers = call.request.headers
         val rawToken = headers[Const.KEY_AUTH] ?: return@get false.also {
-            call.simpleRespond(
-                    "forbidden access",
-                    HttpStatusCode.Forbidden
-            )
+            call.simpleUnauthRespond()
         }
         val token = rawToken.split(" ").last()
 
@@ -209,10 +210,10 @@ object AuthRoutes: AppRoute {
             if(SessionDao.deleteByToken(token)){
                 call.simpleOkRespond()
             } else {
-                call.simpleRespond("internal error while logout", HttpStatusCode.InternalServerError)
+                call.simpleInternalErrorRespond()
             }
         } else {
-            call.simpleRespond("token not found", HttpStatusCode.NotFound)
+            call.simpleNotFoundRespond()
         }
         true
     })

@@ -32,4 +32,6 @@ object Const {
     const val MSG_INSUFFICIENT_BALANCE = "insufficient balance"
     const val MSG_INSUFFICIENT_STOCK = "insufficient stock"
     const val MSG_NOT_SELLER_ITEM = "seller does not own the item"
+    const val MSG_EMAIL_EXISTS = "email already exists"
+    const val MSG_INVALID_EMAIL_PASSWORD = "invalid email or password"
 }

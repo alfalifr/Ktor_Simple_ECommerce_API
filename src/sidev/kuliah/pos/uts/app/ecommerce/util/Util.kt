@@ -54,4 +54,5 @@ object Util {
     suspend fun ApplicationCall.simpleForbiddenRespond(msg: String = "forbidden access"): Unit = simpleRespond(msg, HttpStatusCode.Forbidden)
     suspend fun ApplicationCall.simpleInternalErrorRespond(msg: String = "internal error"): Unit = simpleRespond(msg, HttpStatusCode.InternalServerError)
     suspend fun ApplicationCall.simpleConflictRespond(msg: String = "conflicting value"): Unit = simpleRespond(msg, HttpStatusCode.Conflict)
+    suspend fun ApplicationCall.simpleNotFoundRespond(msg: String = "not found"): Unit = simpleRespond(msg, HttpStatusCode.NotFound)
 }
