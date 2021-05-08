@@ -6,6 +6,7 @@ import io.ktor.http.*
 import io.ktor.request.*
 import io.ktor.response.*
 import io.ktor.routing.*
+import io.ktor.util.pipeline.*
 import org.jetbrains.exposed.sql.transactions.transaction
 import sidev.kuliah.pos.uts.app.ecommerce.data.dao.ItemDao
 import sidev.kuliah.pos.uts.app.ecommerce.data.dao.ItemStockDao
@@ -28,6 +29,7 @@ fun Route.transactionRoutes() {
     route(TransactionRoutes) {
         register(TransactionRoutes.Order)
         register(TransactionRoutes.Approve)
+        register(TransactionRoutes.Reject)
         register(TransactionRoutes.Pay)
     }
 }
@@ -36,6 +38,31 @@ object TransactionRoutes: AppRoute {
     override val parent: AppRoute? = null
     override val method: HttpMethod = HttpMethod.Get
     override fun url(): String = "trans"
+
+    private suspend fun PipelineContext<Unit, ApplicationCall>.approveOrder(approve: Boolean): Boolean {
+        var success = false
+        onSellerRole { session ->
+            val transId = call.parameters[Const.KEY_TRANSACTION_ID]?.toIntOrNull() ?: return@onSellerRole call.simpleBadReqRespond(
+                    "expecting for ${Const.KEY_TRANSACTION_ID}"
+            )
+            val trans = TransactionDao.readById(transId) ?: return@onSellerRole call.simpleInternalErrorRespond(
+                    "no transaction data found"
+            )
+            if(trans.status != Datas.ID_BUY) return@onSellerRole call.simpleBadReqRespond(
+                    "transaction status is not valid"
+            )
+            if(trans.seller != session.userId) return@onSellerRole call.simpleForbiddenRespond(
+                    Const.MSG_NOT_SELLER_ITEM
+            )
+
+            if(TransactionDao.updateTransStatus(transId, if(approve) Datas.ID_APPROVE else Datas.ID_REJECT)){
+                success = true
+                return@onSellerRole call.simpleOkRespond()
+            }
+            if(!success) call.simpleInternalErrorRespond()
+        }
+        return success
+    }
 
     object Order: AppRoute by post("order", {
         var success = false
@@ -99,28 +126,11 @@ object TransactionRoutes: AppRoute {
     })
 
     object Approve: AppRoute by post("approve/{${Const.KEY_TRANSACTION_ID}}", {
-        var success = false
-        onSellerRole { session ->
-            val transId = call.parameters[Const.KEY_TRANSACTION_ID]?.toIntOrNull() ?: return@onSellerRole call.simpleBadReqRespond(
-                    "expecting for ${Const.KEY_TRANSACTION_ID}"
-            )
-            val trans = TransactionDao.readById(transId) ?: return@onSellerRole call.simpleInternalErrorRespond(
-                    "no transaction data found"
-            )
-            if(trans.status != Datas.ID_BUY) return@onSellerRole call.simpleBadReqRespond(
-                    "transaction status is not valid"
-            )
-            if(trans.seller != session.userId) return@onSellerRole call.simpleForbiddenRespond(
-                    Const.MSG_NOT_SELLER_ITEM
-            )
+        approveOrder(true)
+    })
 
-            if(TransactionDao.updateTransStatus(transId, Datas.ID_APPROVE)){
-                success = true
-                return@onSellerRole call.simpleOkRespond()
-            }
-            if(!success) call.simpleInternalErrorRespond()
-        }
-        success
+    object Reject: AppRoute by post("reject/{${Const.KEY_TRANSACTION_ID}}", {
+        approveOrder(false)
     })
 
     object Pay: AppRoute by post("pay/{${Const.KEY_TRANSACTION_ID}}", {
@@ -164,30 +174,4 @@ object TransactionRoutes: AppRoute {
         if(!success) call.simpleInternalErrorRespond()
         success
     })
-/*
-    object Topup: AppRoute by post("topup/{${Const.KEY_TOPUP}}", {
-        var success = false
-        onBuyerRole { session ->
-            val topupCount = call.parameters[Const.KEY_TOPUP]?.toIntOrNull() ?: return@onBuyerRole call.simpleBadReqRespond(
-                    "expecting for ${Const.KEY_TOPUP}"
-            )
-
-            if(topupCount <= 0) return@onBuyerRole call.simpleBadReqRespond(
-                    "expecting for positive topup"
-            )
-
-            val buyerBalance = UserDao.getBalance(session.userId)
-            if(buyerBalance < 0) return@onBuyerRole call.simpleInternalErrorRespond(
-                    "no balance data found"
-            )
-
-            if(UserDao.updateBalance(session.userId, buyerBalance + topupCount)) {
-                success = true
-                return@onBuyerRole call.simpleOkRespond()
-            }
-        }
-        if(!success) call.simpleInternalErrorRespond()
-        success
-    })
- */
 }

@@ -85,12 +85,6 @@ class TransactionRoutesTest {
     fun _1_1orderSuccessTest() = _1orderSuccessTest(TestData.buyData1_1, TestData.expectedBuy1_1)
     @Test
     fun _1_2orderSuccessTest() = _1orderSuccessTest(TestData.buyData2_1, TestData.expectedBuy2_1)
-/*
-    @Test
-    fun _1_2_1orderTest() = _1orderSuccessTest(TestData.buyData1_2, null, HttpStatusCode.Conflict, Const.MSG_CONFLICT_TRANS)
-    @Test
-    fun _1_2_2orderTest() = _1orderSuccessTest(TestData.buyData2_2, null, HttpStatusCode.Conflict, Const.MSG_CONFLICT_TRANS)
- */
 
     fun _1orderSuccessTest(
             buyData: Map<String, Int>,
