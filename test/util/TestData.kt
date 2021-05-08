@@ -125,5 +125,10 @@ object TestData {
             expectedBuy1_1, expectedBuy2_1
     )
 
-    val expectedFinalBalance = Dummy.buyerBalanceRemain
+    val expectedBuyerBalance1 = Dummy.buyerBalanceInit - Dummy.totalPriceBuy1_1
+    val expectedBuyerBalance2 = Dummy.buyerBalanceInit - Dummy.totalPriceBuy1_1 - Dummy.totalPriceBuy2_1
+    val expectedBuyerFinalBalance = Dummy.buyerBalanceRemain
+
+    val expectedSellerBalance1 = Dummy.sellerBalance1_1
+    val expectedSellerBalance2 = Dummy.sellerBalance2_1
 }

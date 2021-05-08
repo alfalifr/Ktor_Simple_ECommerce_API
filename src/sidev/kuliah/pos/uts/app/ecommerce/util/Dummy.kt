@@ -13,16 +13,19 @@ object Dummy {
     val sellerPswd2 = "ereho"
     val buyerPswd = "ereh"
 
+    val sellerBalanceInit1 = 1_500L
+    val sellerBalanceInit2 = 1_700L
+
     val sellerDetail1 = UserDetail(
             seller1,
             Util.sha256(sellerPswd1),
-            1_500,
+            sellerBalanceInit1,
             Datas.ID_SELLER
     )
     val sellerDetail2 = UserDetail(
             seller2,
             Util.sha256(sellerPswd2),
-            1_700,
+            sellerBalanceInit2,
             Datas.ID_SELLER
     )
     val buyerDetail by lazy {
@@ -57,13 +60,19 @@ object Dummy {
     val item2_index1_buyCount1 = 9
     val item2_index1_buyCount2 = 12
 
-    val totalPriceBuy1 = items1[2].price * 9
-    val totalPriceBuy2 = items2[1].price * 15
+    val totalPriceBuy1_1 = items1[2].price * item1_index2_buyCount1
+    val totalPriceBuy2_1 = items2[1].price * item2_index1_buyCount1
 
-    val buyerBalanceInit = totalPriceBuy1 + totalPriceBuy2
+    val buyerTotalPriceBuyBalance1_1 = items1[2].price * 9
+    val buyerTotalPriceBuyBalance2_1 = items2[1].price * 15
+
+    val buyerBalanceInit = buyerTotalPriceBuyBalance1_1 + buyerTotalPriceBuyBalance2_1
     val buyerBalanceRemain = buyerBalanceInit -
-            (items1[2].price * item1_index2_buyCount1) -
-            (items2[1].price * item2_index1_buyCount1)
+            totalPriceBuy1_1 -
+            totalPriceBuy2_1
+
+    val sellerBalance1_1 = sellerBalanceInit1 + totalPriceBuy1_1
+    val sellerBalance2_1 = sellerBalanceInit2 + totalPriceBuy2_1
 
 
     //private fun getBuyerBalance(): Long = items1.

@@ -68,7 +68,7 @@ object TransactionRoutes: AppRoute {
                             "no item stock data found"
                     )
                     if(itemStock.count <= count) return@onBuyerRole call.simpleBadReqRespond(
-                            "insufficient stock"
+                            Const.MSG_INSUFFICIENT_STOCK
                     )
                     val totalPrice = item.price * count
                     val buyerBalance = UserDao.getBalance(session.userId)

@@ -30,5 +30,6 @@ object Const {
 
     const val MSG_CONFLICT_TRANS = "there is another incomplete transaction with same item"
     const val MSG_INSUFFICIENT_BALANCE = "insufficient balance"
+    const val MSG_INSUFFICIENT_STOCK = "insufficient stock"
     const val MSG_NOT_SELLER_ITEM = "seller does not own the item"
 }

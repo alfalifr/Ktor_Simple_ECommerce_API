@@ -8,6 +8,7 @@ import org.junit.FixMethodOrder
 import org.junit.Test
 import org.junit.runners.MethodSorters
 import sidev.kuliah.pos.uts.app.ecommerce.data.dao.TransactionDao
+import sidev.kuliah.pos.uts.app.ecommerce.data.dao.UserDao
 import sidev.kuliah.pos.uts.app.ecommerce.data.model.Datas
 import sidev.kuliah.pos.uts.app.ecommerce.data.model.Transaction
 import sidev.kuliah.pos.uts.app.ecommerce.routes.AuthRoutes
@@ -135,6 +136,7 @@ class TransactionRoutesTest {
                 val msg = JsonParser.parseString(resp).asJsonObject
                         .getAsJsonPrimitive(Const.KEY_MESSAGE).asString
                 assertNotNull(msg)
+                assertEquals(Const.MSG_CONFLICT_TRANS, msg)
 
                 //Verify
                 val trans = TransactionDao.read()
@@ -145,11 +147,11 @@ class TransactionRoutesTest {
     }
 
     @Test
-    fun _3_1approveTest() = _3approveTest(TestData.expectedBuyId1_1, tokenSeller1)
+    fun _3_1approveSuccessTest() = _3approveSuccessTest(TestData.expectedBuyId1_1, tokenSeller1)
     @Test
-    fun _3_2approveTest() = _3approveTest(TestData.expectedBuyId2_1, tokenSeller2)
+    fun _3_3approveSuccessTest() = _3approveSuccessTest(TestData.expectedBuyId2_1, tokenSeller2)
 
-    fun _3approveTest(transId: Int, sellerToken: String) {
+    fun _3approveSuccessTest(transId: Int, sellerToken: String) {
         withTestApplication({ module(testing = true) }) {
             requestWithPath(TransactionRoutes.Approve, Const.KEY_TRANSACTION_ID to transId) {
                 addHeader(HttpHeaders.Authorization, sellerToken)
@@ -165,5 +167,84 @@ class TransactionRoutesTest {
         }
     }
 
+    @Test
+    fun _3_2approveForbiddenTest() {
+        withTestApplication({ module(testing = true) }) {
+            requestWithPath(TransactionRoutes.Approve, Const.KEY_TRANSACTION_ID to TestData.expectedBuyId2_1) {
+                addHeader(HttpHeaders.Authorization, tokenSeller1)
+            }.apply {
+                println("Approve response.content = ${response.content}")
+                assertEquals(HttpStatusCode.Forbidden, response.status())
+
+                val resp = response.content
+                assertNotNull(resp)
+                val jsonObj = JsonParser.parseString(resp).asJsonObject
+                val msg = jsonObj.getAsJsonPrimitive(Const.KEY_MESSAGE).asString
+
+                assertEquals(Const.MSG_NOT_SELLER_ITEM, msg)
+
+                //Verify
+                val trans = TransactionDao.readById(TestData.expectedBuyId2_1)
+                assertNotNull(trans)
+                assertEquals(trans.status, Datas.ID_BUY)
+            }
+        }
+    }
+
+    @Test
+    fun _4_1paySuccessTest() = _4paySuccessTest(TestData.expectedBuyId1_1, TestData.expectedSellerBalance1, TestData.expectedBuyerBalance1)
+    @Test
+    fun _4_2paySuccessTest() = _4paySuccessTest(TestData.expectedBuyId2_1, TestData.expectedSellerBalance2, TestData.expectedBuyerBalance2)
+
+    fun _4paySuccessTest(transId: Int, expectedSellerBalance: Long, expectedBuyerBalance: Long) {
+        withTestApplication({ module(testing = true) }) {
+            requestWithPath(TransactionRoutes.Pay, Const.KEY_TRANSACTION_ID to transId) {
+                addHeader(HttpHeaders.Authorization, tokenBuyer)
+            }.apply {
+                assertEquals(HttpStatusCode.OK, response.status())
+
+                //Verify
+                val trans = TransactionDao.readById(transId)
+                assertNotNull(trans)
+                assertEquals(Datas.ID_PAY, trans.status)
+
+                val seller = UserDao.readById(trans.seller)
+                val buyer = UserDao.readById(trans.buyer)
+
+                assertNotNull(seller)
+                assertNotNull(buyer)
+                assertEquals(expectedSellerBalance, seller.balance)
+                assertEquals(expectedBuyerBalance, buyer.balance)
+            }
+        }
+    }
+
+    @Test
+    fun _5_1orderOutOfStockTest() = _5orderBadBusinessLogicTest(TestData.buyData1_2, Const.MSG_INSUFFICIENT_STOCK)
+
+    @Test
+    fun _5_2orderInsufficientBalanceTest() = _5orderBadBusinessLogicTest(TestData.buyData2_2, Const.MSG_INSUFFICIENT_BALANCE)
+
+    fun _5orderBadBusinessLogicTest(buyData: Map<String, Int>, expectedMsg: String) {
+        withTestApplication({ module(testing = true) }) {
+            request(TransactionRoutes.Order) {
+                addHeader(HttpHeaders.Authorization, tokenBuyer)
+                setBody(buyData.toJsonString())
+            }.apply {
+                assertEquals(HttpStatusCode.BadRequest, response.status())
+
+                val resp = response.content
+                val msg = JsonParser.parseString(resp).asJsonObject
+                        .getAsJsonPrimitive(Const.KEY_MESSAGE).asString
+                assertNotNull(msg)
+                assertEquals(expectedMsg, msg)
+
+                //Verify
+                val trans = TransactionDao.read()
+                assertEquals(currentTransCount, trans.size)
+                //assertEquals(TestData.expectedTransListAfterConflict, trans)
+            }
+        }
+    }
 
 }
