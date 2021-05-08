@@ -18,8 +18,9 @@ import sidev.kuliah.pos.uts.app.ecommerce.data.model.ItemDisplay
 import sidev.kuliah.pos.uts.app.ecommerce.data.model.ItemStock
 import sidev.kuliah.pos.uts.app.ecommerce.util.Const
 import sidev.kuliah.pos.uts.app.ecommerce.util.Util
-import sidev.kuliah.pos.uts.app.ecommerce.util.Util.simpleFailRespond
+import sidev.kuliah.pos.uts.app.ecommerce.util.Util.simpleBadReqRespond
 import sidev.kuliah.pos.uts.app.ecommerce.util.Util.simpleForbiddenRespond
+import sidev.kuliah.pos.uts.app.ecommerce.util.Util.simpleInternalErrorRespond
 import sidev.kuliah.pos.uts.app.ecommerce.util.Util.simpleOkRespond
 import sidev.kuliah.pos.uts.app.ecommerce.util.Util.simpleRespond
 import sidev.kuliah.pos.uts.app.ecommerce.util.onSellerRole
@@ -168,7 +169,7 @@ object ItemRoutes: AppRoute {
         if(success){
             call.simpleOkRespond()
         } else {
-            call.simpleFailRespond()
+            call.simpleBadReqRespond()
         }
         success
     })
@@ -200,7 +201,7 @@ object ItemRoutes: AppRoute {
                 if(success){
                     call.simpleOkRespond()
                 } else {
-                    call.simpleFailRespond()
+                    call.simpleBadReqRespond()
                 }
             }
             return success
@@ -209,22 +210,33 @@ object ItemRoutes: AppRoute {
 
     object UpdateStock: AppRoute by post("stock/{${Const.KEY_ITEM_ID}}", {
         var success = false
-        onSellerRole {
+        onSellerRole { session ->
             val body = call.receiveText()
-            val id = call.parameters[Const.KEY_ITEM_ID]?.toInt() ?: return@onSellerRole call.simpleRespond(
+            val id = call.parameters[Const.KEY_ITEM_ID]?.toInt() ?: return@onSellerRole call.simpleBadReqRespond(
                     "expecting for ${Const.KEY_ITEM_ID}",
-                    HttpStatusCode.BadRequest,
             )
 
-            try {
-                val stock = JsonParser.parseString(body).asJsonObject
-                        .getAsJsonPrimitive(Const.KEY_STOCK).asInt
-                success = ItemStockDao.update(id, stock)
-            } catch (e: Exception) { }
+            val itemOwner = ItemDao.getOwnerId(id)
+            when {
+                itemOwner < 0 -> return@onSellerRole call.simpleInternalErrorRespond(
+                        "item not found"
+                )
+                itemOwner != session.userId -> return@onSellerRole call.simpleForbiddenRespond(
+                        Const.MSG_NOT_SELLER_ITEM
+                )
+            }
+
+            val stock = JsonParser.parseString(body).asJsonObject
+                    .getAsJsonPrimitive(Const.KEY_STOCK).asInt
+            if(stock < 0) return@onSellerRole call.simpleBadReqRespond(
+                    "expecting for non-negative stock"
+            )
+            success = ItemStockDao.update(id, stock)
+
             if(success){
                 call.simpleOkRespond()
             } else {
-                call.simpleRespond("internal error", HttpStatusCode.InternalServerError)
+                call.simpleInternalErrorRespond()
             }
         }
         success

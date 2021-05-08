@@ -1,12 +1,9 @@
 package sidev.kuliah.pos.uts.app.ecommerce.data.dao
 
 import org.jetbrains.exposed.dao.id.EntityID
-import org.jetbrains.exposed.sql.Column
-import org.jetbrains.exposed.sql.ResultRow
-import org.jetbrains.exposed.sql.select
+import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.statements.InsertStatement
 import org.jetbrains.exposed.sql.transactions.transaction
-import org.jetbrains.exposed.sql.update
 import sidev.kuliah.pos.uts.app.ecommerce.data.dao.SimpleDao
 import sidev.kuliah.pos.uts.app.ecommerce.data.db.TransactionStatuss
 import sidev.kuliah.pos.uts.app.ecommerce.data.db.Transactions
@@ -22,6 +19,7 @@ object TransactionDao: SimpleDao<Transaction, Transactions> {
     override fun Transactions.generateModel(row: ResultRow): Transaction = Transaction(
         row[id].value,
         row[timestamp].toString(),
+        row[itemId],
         row[count],
         row[buyer],
         row[seller],
@@ -30,6 +28,7 @@ object TransactionDao: SimpleDao<Transaction, Transactions> {
 
     override fun Transactions.onInsert(insert: InsertStatement<*>, model: Transaction) {
         insert[timestamp] = Instant.parse(model.timestamp)
+        insert[itemId] = model.itemId
         insert[count] = model.count
         insert[buyer] = model.buyer
         insert[seller] = model.seller
@@ -48,8 +47,14 @@ object TransactionDao: SimpleDao<Transaction, Transactions> {
     }
 
     fun updateTransStatus(transId: Int, statusId: Int): Boolean = transaction {
-        Transactions.update { id eq transId }
-        true
+        Transactions.update({ Transactions.id eq transId }) {
+            it[status] = statusId
+        } == 1
+    }
+
+    fun getStatusByItemAndBuyer(itemId: Int, buyerId: Int): List<Int> = transaction {
+        Transactions.select { Transactions.itemId eq itemId and (Transactions.buyer eq buyerId) }
+                .map { it[Transactions.status] }
     }
 }
 

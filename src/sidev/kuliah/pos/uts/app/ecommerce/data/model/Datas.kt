@@ -8,7 +8,10 @@ object Datas {
 
     const val ID_BUY = 1
     const val ID_APPROVE = 2
-    const val ID_PAY = 3
+    const val ID_REJECT = 3
+    const val ID_PAY = 4
+
+    const val SECRET_PAYMENT = "ruhiy58gt97unk30io8u97s2m204nb4hhk5o8kgyk139m1kl4jy"
 
     val roles = arrayOf(
         Role(ID_SELLER, Const.ROLE_SELLER),
@@ -17,6 +20,7 @@ object Datas {
     val transStatus = arrayOf(
         TransactionStatus(ID_BUY, Const.STATUS_ORDER),
         TransactionStatus(ID_APPROVE, Const.STATUS_APPROVE),
+        TransactionStatus(ID_REJECT, Const.STATUS_REJECT),
         TransactionStatus(ID_PAY, Const.STATUS_PAY),
     )
 }

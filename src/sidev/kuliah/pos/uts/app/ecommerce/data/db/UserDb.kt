@@ -13,7 +13,7 @@ object Users: IdTable<Int>("users") {
     val email: Column<String> = varchar("email", 60).uniqueIndex()
     val balance: Column<Long> = long("balance")
     val pswdHash: Column<String> = varchar("pswd_hash", 70)
-    val isActive = bool("is_active")
+    //val isActive = bool("is_active")
     val role = integer("role_id").references(Roles.id) //reference(Roles.id, "role_id").foreignKey
 
     override val primaryKey: PrimaryKey? = PrimaryKey(id)

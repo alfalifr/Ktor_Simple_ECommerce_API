@@ -21,7 +21,7 @@ object UserDao: SimpleDao<UserDetail, Users> {
         ),
         row[pswdHash],
         row[balance],
-        row[isActive],
+        //row[isActive],
         row[role],
     )
 
@@ -31,7 +31,7 @@ object UserDao: SimpleDao<UserDetail, Users> {
         insert[email] = user.email
         insert[pswdHash] = model.pswdHash
         insert[balance] = model.balance
-        insert[isActive] = model.isActive
+        //insert[isActive] = model.isActive
         insert[role] = model.roleId
     }
 

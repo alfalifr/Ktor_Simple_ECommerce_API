@@ -10,7 +10,7 @@ data class UserDetail(
     val user: User,
     val pswdHash: String,
     val balance: Long,
-    val isActive: Boolean,
+    //val isActive: Boolean,
     val roleId: Int,
 )
 

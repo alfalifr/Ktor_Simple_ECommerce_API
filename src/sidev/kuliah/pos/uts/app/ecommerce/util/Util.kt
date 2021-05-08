@@ -46,10 +46,12 @@ object Util {
  */
     fun Map<*, *>.toJsonString(): String = gson.toJson(this)
 
-    fun simpleRespond(value: Any): Map<String, Any> = mapOf("message" to value)
+    fun simpleRespond(value: Any): Map<String, Any> = mapOf(Const.KEY_MESSAGE to value)
     suspend fun ApplicationCall.simpleRespond(value: Any, status: HttpStatusCode = HttpStatusCode.OK): Unit = respond(status, mapOf("message" to value))
-    suspend fun ApplicationCall.simpleFailRespond(): Unit = simpleRespond("not ok", HttpStatusCode.BadRequest)
-    suspend fun ApplicationCall.simpleOkRespond(): Unit = simpleRespond("ok")
-    suspend fun ApplicationCall.simpleForbiddenRespond(): Unit = simpleRespond("forbidden access", HttpStatusCode.Forbidden)
-    suspend fun ApplicationCall.simpleInternalErrorRespond(): Unit = simpleRespond("internal error", HttpStatusCode.InternalServerError)
+    suspend fun ApplicationCall.simpleBadReqRespond(msg: String = "bad request"): Unit = simpleRespond(msg, HttpStatusCode.BadRequest)
+    suspend fun ApplicationCall.simpleUnauthRespond(msg: String = "unauthorized"): Unit = simpleRespond(msg, HttpStatusCode.Unauthorized)
+    suspend fun ApplicationCall.simpleOkRespond(msg: String = "ok"): Unit = simpleRespond(msg)
+    suspend fun ApplicationCall.simpleForbiddenRespond(msg: String = "forbidden access"): Unit = simpleRespond(msg, HttpStatusCode.Forbidden)
+    suspend fun ApplicationCall.simpleInternalErrorRespond(msg: String = "internal error"): Unit = simpleRespond(msg, HttpStatusCode.InternalServerError)
+    suspend fun ApplicationCall.simpleConflictRespond(msg: String = "conflicting value"): Unit = simpleRespond(msg, HttpStatusCode.Conflict)
 }

@@ -1,6 +1,5 @@
 package sidev.kuliah.pos.uts.app.ecommerce.routes
 
-import com.github.javafaker.Faker
 import com.google.gson.Gson
 import com.google.gson.JsonParser
 import io.ktor.application.*
@@ -8,12 +7,6 @@ import io.ktor.http.*
 import io.ktor.request.*
 import io.ktor.response.*
 import io.ktor.routing.*
-import io.ktor.util.pipeline.*
-import kotlinx.serialization.decodeFromString
-import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.JsonElement
-import kotlinx.serialization.parse
-import kotlinx.serialization.serializer
 import sidev.kuliah.pos.uts.app.ecommerce.data.dao.SessionDao
 import sidev.kuliah.pos.uts.app.ecommerce.data.dao.UserDao
 import sidev.kuliah.pos.uts.app.ecommerce.data.model.Session
@@ -21,10 +14,8 @@ import sidev.kuliah.pos.uts.app.ecommerce.data.model.User
 import sidev.kuliah.pos.uts.app.ecommerce.data.model.UserDetail
 import sidev.kuliah.pos.uts.app.ecommerce.util.Const
 import sidev.kuliah.pos.uts.app.ecommerce.util.Util
-import sidev.kuliah.pos.uts.app.ecommerce.util.Util.simpleFailRespond
 import sidev.kuliah.pos.uts.app.ecommerce.util.Util.simpleOkRespond
 import sidev.kuliah.pos.uts.app.ecommerce.util.Util.simpleRespond
-import java.security.MessageDigest
 
 fun Route.authRoutes(){
     route(AuthRoutes){

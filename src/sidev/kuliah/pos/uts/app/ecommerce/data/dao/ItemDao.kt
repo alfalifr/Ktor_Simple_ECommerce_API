@@ -67,4 +67,10 @@ object ItemStockDao: SimpleDao<ItemStock, ItemStocks> {
             it[count] = newStock
         } == 1
     }
+
+    fun readByItemId(itemId: Int): ItemStock? = transaction {
+        ItemStocks.select { ItemStocks.itemId eq itemId }.firstOrNull()?.let {
+            table.generateModel(it)
+        }
+    }
 }

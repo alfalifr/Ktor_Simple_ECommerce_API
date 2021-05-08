@@ -17,7 +17,7 @@ object TestUtil {
     )
     fun TestApplicationEngine.requestWithPath(
             route: AppRoute,
-            vararg paths: Pair<String, String>,
+            vararg paths: Pair<String, Any>,
             setup: TestApplicationRequest.() -> Unit = {}
     ) = handleRequest(
             route.method,

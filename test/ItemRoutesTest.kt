@@ -8,6 +8,7 @@ import org.junit.FixMethodOrder
 import org.junit.Test
 import org.junit.runners.MethodSorters
 import sidev.kuliah.pos.uts.app.ecommerce.data.dao.ItemDao
+import sidev.kuliah.pos.uts.app.ecommerce.data.dao.ItemStockDao
 import sidev.kuliah.pos.uts.app.ecommerce.data.model.Item
 import sidev.kuliah.pos.uts.app.ecommerce.data.model.ItemDisplay
 import sidev.kuliah.pos.uts.app.ecommerce.data.model.User
@@ -57,6 +58,45 @@ class ItemRoutesTest {
                 }
             }
         }
+
+        @JvmStatic
+        fun _1postItemTest(seller: User, token: String, items: List<Item>){
+            withTestApplication({ module(testing = true) }) {
+                val call = request(ItemRoutes.PostItem) {
+                    addHeader(HttpHeaders.Authorization, token)
+                    setBody(Util.gson.toJson(items))
+                }
+                call.apply {
+                    assertEquals(HttpStatusCode.OK, response.status())
+                }
+
+                //Verify
+                val itemFromQuery = ItemDao.readAllByOwner(seller.id)
+                assert(items.containsAll(itemFromQuery))
+            }
+        }
+
+        @JvmStatic
+        fun _4updateItemStock(
+                updatedStockId: Int,
+                expectedUpdateStockData: Map<String, Int>,
+                sellerToken: String,
+        ) {
+            withTestApplication({ module(testing = true) }) {
+                requestWithPath(ItemRoutes.UpdateStock, Const.KEY_ITEM_ID to updatedStockId) {
+                    addHeader(HttpHeaders.Authorization, sellerToken)
+                    setBody(expectedUpdateStockData.toJsonString())
+                }.apply {
+                    assertEquals(HttpStatusCode.OK, response.status())
+                }
+
+                //Verify
+                val itemStock = ItemStockDao.readByItemId(updatedStockId)
+
+                assertNotNull(itemStock)
+                assertEquals(expectedUpdateStockData[Const.KEY_STOCK], itemStock.count)
+            }
+        }
     }
 
     @Test
@@ -64,21 +104,6 @@ class ItemRoutesTest {
     @Test
     fun _1_2postItemTest() = _1postItemTest(TestData.sellerDetail2.user, tokenSeller2, TestData.postItemData2)
 
-    private fun _1postItemTest(seller: User, token: String, items: List<Item>){
-        withTestApplication({ module(testing = true) }) {
-            val call = request(ItemRoutes.PostItem) {
-                addHeader(HttpHeaders.Authorization, token)
-                setBody(Util.gson.toJson(items))
-            }
-            call.apply {
-                assertEquals(HttpStatusCode.OK, response.status())
-            }
-
-            //Verify
-            val itemFromQuery = ItemDao.readAllByOwner(seller.id)
-            assert(items.containsAll(itemFromQuery))
-        }
-    }
 
     // User.id is changed cuz it follows the order of signup.
     @Test
@@ -133,4 +158,9 @@ class ItemRoutesTest {
         println("itemDisplays = $itemDisplays")
         return itemDisplays
     }
+
+    @Test
+    fun _4_1updateItemStock() = _4updateItemStock(TestData.updatedStockId1, TestData.updateStockData1, tokenSeller1)
+    @Test
+    fun _4_2updateItemStock() = _4updateItemStock(TestData.updatedStockId2, TestData.updateStockData2, tokenSeller2)
 }

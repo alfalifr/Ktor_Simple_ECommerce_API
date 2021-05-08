@@ -21,6 +21,8 @@ import sidev.kuliah.pos.uts.app.ecommerce.data.model.User
 import sidev.kuliah.pos.uts.app.ecommerce.data.model.UserDetail
 import sidev.kuliah.pos.uts.app.ecommerce.routes.authRoutes
 import sidev.kuliah.pos.uts.app.ecommerce.routes.itemRoutes
+import sidev.kuliah.pos.uts.app.ecommerce.routes.paymentRoutes
+import sidev.kuliah.pos.uts.app.ecommerce.routes.transactionRoutes
 import sidev.kuliah.pos.uts.app.ecommerce.util.Const
 import sidev.kuliah.pos.uts.app.ecommerce.util.Util
 
@@ -40,7 +42,8 @@ fun Application.module(testing: Boolean = false, recreateTable: Boolean = false)
 
     registerDummyRoutes()
     initDb(recreateTable)
-    initDbConfig()
+    if(recreateTable)
+        initDbConfig()
     registerRoutes()
 
 /*
@@ -100,6 +103,8 @@ fun Application.registerRoutes(){
     routing {
         authRoutes()
         itemRoutes()
+        transactionRoutes()
+        paymentRoutes()
     }
 }
 

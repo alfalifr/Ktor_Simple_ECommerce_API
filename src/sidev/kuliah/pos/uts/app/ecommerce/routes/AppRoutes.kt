@@ -27,10 +27,10 @@ interface AppRoute: Child<AppRoute> {
     fun completeUrl(): String = if(parent != null) "${parent!!.completeUrl()}/${url()}" else url()
     fun completeUrlWithParam(vararg pairs: Pair<String, String>): String =
             "${completeUrl()}?${pairs.asList().formUrlEncode()}"
-    fun completeUrlWithPath(vararg pairs: Pair<String, String>): String {
+    fun completeUrlWithPath(vararg pairs: Pair<String, Any>): String {
         var res = completeUrl()
         for((key, value) in pairs){
-            res = res.replaceFirst("{$key}", value)
+            res = res.replaceFirst("{$key}", value.toString())
         }
         return res
     }
