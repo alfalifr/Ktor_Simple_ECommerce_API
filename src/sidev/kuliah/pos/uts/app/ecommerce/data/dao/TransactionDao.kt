@@ -3,12 +3,16 @@ package sidev.kuliah.pos.uts.app.ecommerce.data.dao
 import org.jetbrains.exposed.dao.id.EntityID
 import org.jetbrains.exposed.sql.Column
 import org.jetbrains.exposed.sql.ResultRow
+import org.jetbrains.exposed.sql.select
 import org.jetbrains.exposed.sql.statements.InsertStatement
+import org.jetbrains.exposed.sql.transactions.transaction
+import org.jetbrains.exposed.sql.update
 import sidev.kuliah.pos.uts.app.ecommerce.data.dao.SimpleDao
 import sidev.kuliah.pos.uts.app.ecommerce.data.db.TransactionStatuss
 import sidev.kuliah.pos.uts.app.ecommerce.data.db.Transactions
 import sidev.kuliah.pos.uts.app.ecommerce.data.model.Transaction
 import sidev.kuliah.pos.uts.app.ecommerce.data.model.TransactionStatus
+import sidev.kuliah.pos.uts.app.ecommerce.data.model.User
 import java.time.Instant
 
 object TransactionDao: SimpleDao<Transaction, Transactions> {
@@ -30,6 +34,22 @@ object TransactionDao: SimpleDao<Transaction, Transactions> {
         insert[buyer] = model.buyer
         insert[seller] = model.seller
         insert[status] = model.status
+    }
+
+    fun readAllByBuyer(buyerId: Int): List<Transaction> = readAllByActor(Transactions.buyer, buyerId)
+    fun readAllBySeller(sellerId: Int): List<Transaction> = readAllByActor(Transactions.seller, sellerId)
+    private fun readAllByActor(actorColumn: Column<Int>, actorId: Int): List<Transaction> = transaction {
+        val list = mutableListOf<Transaction>()
+        val rows = Transactions.select { actorColumn eq actorId }
+        for(row in rows){
+            list += table.generateModel(row)
+        }
+        list
+    }
+
+    fun updateTransStatus(transId: Int, statusId: Int): Boolean = transaction {
+        Transactions.update { id eq transId }
+        true
     }
 }
 
