@@ -24,7 +24,7 @@ object PaymentRoutes: AppRoute {
     override val method: HttpMethod = HttpMethod.Get
     override fun url(): String = "payment"
 
-    object Topup: AppRoute by post("topup/{${Const.KEY_TOPUP}}", {
+    object Topup: AppRoute by post("topup", {
         var success = false
         onPaymentAuth {
             val body = call.receiveText()
@@ -36,7 +36,7 @@ object PaymentRoutes: AppRoute {
             val userId = jsonObj.getAsJsonPrimitive(Const.KEY_USER_ID).asInt
 
             if(topupCount <= 0) return@onPaymentAuth call.simpleBadReqRespond(
-                    "expecting for positive topup"
+                    Const.MSG_POSITIVE_TOPUP
             )
 
             val buyerBalance = UserDao.getBalance(userId)
@@ -48,8 +48,42 @@ object PaymentRoutes: AppRoute {
                 success = true
                 return@onPaymentAuth call.simpleOkRespond()
             }
+            if(!success) call.simpleInternalErrorRespond()
         }
-        if(!success) call.simpleInternalErrorRespond()
         success
     })
+/*
+    object Transfer: AppRoute by post("transfer", {
+        var success = false
+        onPaymentAuth {
+            val body = call.receiveText()
+            val jsonObj = JsonParser.parseString(body).asJsonObject
+            if(!jsonObj.has(Const.KEY_BALANCE)
+                    || !jsonObj.has(Const.KEY_USER_ID_FROM)
+                    || !jsonObj.has(Const.KEY_USER_ID_FROM)
+            ) return@onPaymentAuth call.simpleBadReqRespond(
+                    "expecting for ${Const.KEY_BALANCE}, ${Const.KEY_USER_ID_FROM}, and ${Const.KEY_USER_ID_FROM}"
+            )
+
+            val balanceTf = jsonObj.getAsJsonPrimitive(Const.KEY_BALANCE).asInt
+            val userId = jsonObj.getAsJsonPrimitive(Const.KEY_USER_ID).asInt
+
+            if(balanceTf <= 0) return@onPaymentAuth call.simpleBadReqRespond(
+                    "expecting for positive balance"
+            )
+
+            val buyerBalance = UserDao.getBalance(userId)
+            if(buyerBalance < 0) return@onPaymentAuth call.simpleInternalErrorRespond(
+                    "no balance data found"
+            )
+
+            if(UserDao.updateBalance(userId, buyerBalance + balanceTf)) {
+                success = true
+                return@onPaymentAuth call.simpleOkRespond()
+            }
+            if(!success) call.simpleInternalErrorRespond()
+        }
+        success
+    })
+ */
 }

@@ -170,8 +170,8 @@ object TransactionRoutes: AppRoute {
                 success = true
                 return@onBuyerRole call.simpleOkRespond()
             }
+            if(!success) call.simpleInternalErrorRespond()
         }
-        if(!success) call.simpleInternalErrorRespond()
         success
     })
 }

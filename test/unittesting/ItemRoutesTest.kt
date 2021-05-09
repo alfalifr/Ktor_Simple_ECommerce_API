@@ -1,4 +1,4 @@
-package sidev.kuliah.pos.uts.app.ecommerce
+package sidev.kuliah.pos.uts.app.ecommerce.unittesting
 
 import com.google.gson.JsonParser
 import io.ktor.http.*
@@ -12,6 +12,7 @@ import sidev.kuliah.pos.uts.app.ecommerce.data.dao.ItemStockDao
 import sidev.kuliah.pos.uts.app.ecommerce.data.model.Item
 import sidev.kuliah.pos.uts.app.ecommerce.data.model.ItemDisplay
 import sidev.kuliah.pos.uts.app.ecommerce.data.model.User
+import sidev.kuliah.pos.uts.app.ecommerce.module
 import sidev.kuliah.pos.uts.app.ecommerce.routes.AuthRoutes
 import sidev.kuliah.pos.uts.app.ecommerce.routes.ItemRoutes
 import sidev.kuliah.pos.uts.app.ecommerce.util.Const
@@ -60,7 +61,7 @@ class ItemRoutesTest {
         }
 
         @JvmStatic
-        fun _1postItemTest(seller: User, token: String, items: List<Item>){
+        fun postItemTest(seller: User, token: String, items: List<Item>){
             withTestApplication({ module(testing = true) }) {
                 val call = request(ItemRoutes.PostItem) {
                     addHeader(HttpHeaders.Authorization, token)
@@ -77,7 +78,7 @@ class ItemRoutesTest {
         }
 
         @JvmStatic
-        fun _4updateItemStock(
+        fun updateItemStock(
                 updatedStockId: Int,
                 expectedUpdateStockData: Map<String, Int>,
                 sellerToken: String,
@@ -100,9 +101,9 @@ class ItemRoutesTest {
     }
 
     @Test
-    fun _1_1postItemTest() = _1postItemTest(TestData.sellerDetail1.user, tokenSeller1, TestData.postItemData1)
+    fun _1_1postItemTest() = postItemTest(TestData.sellerDetail1.user, tokenSeller1, TestData.postItemData1)
     @Test
-    fun _1_2postItemTest() = _1postItemTest(TestData.sellerDetail2.user, tokenSeller2, TestData.postItemData2)
+    fun _1_2postItemTest() = postItemTest(TestData.sellerDetail2.user, tokenSeller2, TestData.postItemData2)
 
 
     // User.id is changed cuz it follows the order of signup.
@@ -160,7 +161,7 @@ class ItemRoutesTest {
     }
 
     @Test
-    fun _4_1updateItemStock() = _4updateItemStock(TestData.updatedStockId1, TestData.updateStockData1, tokenSeller1)
+    fun _4_1updateItemStock() = updateItemStock(TestData.updatedStockId1, TestData.updateStockData1, tokenSeller1)
     @Test
-    fun _4_2updateItemStock() = _4updateItemStock(TestData.updatedStockId2, TestData.updateStockData2, tokenSeller2)
+    fun _4_2updateItemStock() = updateItemStock(TestData.updatedStockId2, TestData.updateStockData2, tokenSeller2)
 }

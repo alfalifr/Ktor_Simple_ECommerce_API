@@ -14,7 +14,7 @@ import sidev.kuliah.pos.uts.app.ecommerce.util.Util.simpleUnauthRespond
 suspend fun PipelineContext<Unit, ApplicationCall>.onPaymentAuth(
     onValid: suspend PipelineContext<Unit, ApplicationCall>.(paymentAuth: String) -> Unit,
 ) {
-    val rawToken = call.request.headers[Const.KEY_AUTH] ?: return call.simpleBadReqRespond(
+    val rawToken = call.request.headers[Const.KEY_AUTH] ?: return call.simpleUnauthRespond(
             "expecting for payment token"
     )
     val token = rawToken.split(" ").last()
@@ -29,7 +29,7 @@ suspend fun PipelineContext<Unit, ApplicationCall>.onPaymentAuth(
 suspend fun PipelineContext<Unit, ApplicationCall>.onLogin(
     onValid: suspend PipelineContext<Unit, ApplicationCall>.(session: Session) -> Unit,
 ) {
-    val rawToken = call.request.headers[Const.KEY_AUTH] ?: return call.simpleBadReqRespond(
+    val rawToken = call.request.headers[Const.KEY_AUTH] ?: return call.simpleUnauthRespond(
             "expecting for token"
     )
     val token = rawToken.split(" ").last()

@@ -1,4 +1,4 @@
-package sidev.kuliah.pos.uts.app.ecommerce
+package sidev.kuliah.pos.uts.app.ecommerce.unittesting
 
 import com.google.gson.JsonParser
 import io.ktor.http.*
@@ -10,6 +10,8 @@ import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.runners.MethodSorters
 import sidev.kuliah.pos.uts.app.ecommerce.data.dao.SessionDao
 import sidev.kuliah.pos.uts.app.ecommerce.data.dao.UserDao
+import sidev.kuliah.pos.uts.app.ecommerce.data.model.UserDetail
+import sidev.kuliah.pos.uts.app.ecommerce.module
 import sidev.kuliah.pos.uts.app.ecommerce.routes.AuthRoutes
 import sidev.kuliah.pos.uts.app.ecommerce.util.Const
 import sidev.kuliah.pos.uts.app.ecommerce.util.TestData
@@ -23,26 +25,54 @@ class AuthRoutesTest {
     companion object {
         @JvmStatic
         private var token = ""
+
+        @JvmStatic
+        fun signupTest(signupData: Map<String, Any>, user: UserDetail, dropFirst: Boolean = true){
+            withTestApplication({ module(testing = true, recreateTable = dropFirst) }) {
+                request(AuthRoutes.SignUp) {
+                    setBody(signupData.toJsonString())
+                }.apply {
+                    assertEquals(HttpStatusCode.OK, response.status())
+                }
+
+                //Verify
+                val userFromQuery = UserDao.readById(user.user.id)
+                assertNotNull(userFromQuery)
+
+                assertEquals(user.user, userFromQuery.user)
+                assertEquals(user.roleId, userFromQuery.roleId)
+                assertEquals(user.pswdHash, userFromQuery.pswdHash)
+            }
+        }
+
+        @JvmStatic
+        fun loginTest(user: UserDetail, userPswd: String): String {
+            return withTestApplication({ module(testing = true) }) {
+                var token: String? = null
+                request(
+                        AuthRoutes.Login,
+                        Const.KEY_EMAIL to user.user.email,
+                        Const.KEY_PSWD to userPswd,
+                ).apply {
+                    kotlin.test.assertEquals(HttpStatusCode.OK, response.status())
+
+                    token = response.content
+                    assertNotNull(token)
+                    assertEquals(Const.TOKEN_LEN, token!!.length)
+                    assert(token!!.isNotBlank())
+                }
+
+                //Verify
+                val hasLoggedIn = SessionDao.hasLoggedIn(user.user.id)
+                assert(hasLoggedIn)
+                token!!
+            }
+        }
     }
 
     @Test
-    fun _1_1signupSuccessTest() {
-        withTestApplication({ module(testing = true, recreateTable = true) }) {
-            val call = request(AuthRoutes.SignUp) {
-                setBody(TestData.signupData_seller1.toJsonString())
-            }
-            call.apply {
-                assertEquals(HttpStatusCode.OK, response.status())
-            }
+    fun _1_1signupSuccessTest() = signupTest(TestData.signupData_seller1, TestData.sellerDetail1)
 
-            //Verify
-            val user = TestData.sellerDetail1
-            val userFromQuery = UserDao.readById(user.user.id)
-
-            assertNotNull(userFromQuery)
-            assertEquals(user, userFromQuery)
-        }
-    }
     @Test
     fun _1_2signupConflictTest() {
         withTestApplication({ module(testing = true) }) {
@@ -83,6 +113,10 @@ class AuthRoutesTest {
 
     @Test
     fun _2_2loginSuccessTest() {
+        token = loginTest(TestData.sellerDetail1, TestData.loginData1[1].second)
+    }
+/*
+    {
         withTestApplication({ module(testing = true) }) {
             val call = request(AuthRoutes.Login, *TestData.loginData1)
             call.apply {
@@ -101,6 +135,7 @@ class AuthRoutesTest {
             assert(hasLoggedIn)
         }
     }
+ */
 
     @Test
     fun _3logoutTest() {

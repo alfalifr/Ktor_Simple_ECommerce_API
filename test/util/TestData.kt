@@ -160,4 +160,18 @@ object TestData {
     val expectedSellerBalance1_1 = Dummy.sellerBalance1_1
     val expectedSellerBalance1_2 = Dummy.sellerBalance1_2
     val expectedSellerBalance2 = Dummy.sellerBalance2_1
+
+    val topupCount1 = 1_230
+    val topupCount2 = 0
+    val topupTarget = 1 //buyerDetail.user.id -> literal '1' cuz when in test, there will be only 1 account.
+    val expectedTopupBalance1 = Dummy.buyerBalanceInit + topupCount1
+
+    val topupData1 = mapOf(
+            Const.KEY_TOPUP to topupCount1,
+            Const.KEY_USER_ID to topupTarget
+    )
+    val topupData2 = mapOf(
+            Const.KEY_TOPUP to topupCount2,
+            Const.KEY_USER_ID to topupTarget
+    )
 }
