@@ -1,0 +1,2 @@
+docker exec -it ktor-run curl --request DELETE -H "Content-Type:application/json"  "http://127.1.0.1:8080/dbconf/all"
+docker exec -it ktor-run curl --request GET -H "Content-Type:application/json"  "http://127.1.0.1:8080//"

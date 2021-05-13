@@ -3,6 +3,7 @@ package sidev.kuliah.pos.uts.app.ecommerce.util
 import java.security.MessageDigest
 
 object Const {
+    const val URL_BASE = "http://127.1.0.1:8080"
     const val KEY_EMAIL = "email"
     const val KEY_PSWD = "password"
     const val KEY_TOKEN = "token"
@@ -40,4 +41,7 @@ object Const {
     const val MSG_EMAIL_EXISTS = "email already exists"
     const val MSG_INVALID_EMAIL_PASSWORD = "invalid email or password"
     const val MSG_POSITIVE_TOPUP = "expecting for positive topup"
+
+    const val DOCKER_CONTAINER_NAME = "ktor-run"
+    const val DOCKER_IMG_NAME = "ktor-app"
 }

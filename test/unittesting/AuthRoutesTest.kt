@@ -31,6 +31,7 @@ class AuthRoutesTest {
             withTestApplication({ module(testing = true, recreateTable = dropFirst) }) {
                 request(AuthRoutes.SignUp) {
                     setBody(signupData.toJsonString())
+
                 }.apply {
                     assertEquals(HttpStatusCode.OK, response.status())
                 }

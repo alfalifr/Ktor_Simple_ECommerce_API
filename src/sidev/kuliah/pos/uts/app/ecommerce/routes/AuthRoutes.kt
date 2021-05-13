@@ -125,6 +125,8 @@ object AuthRoutes: AppRoute {
         val body = call.receiveText()
         val gson = Gson()
 
+        println("SignUp body= $body")
+
         val user= gson.fromJson(body, User::class.java)
 
         if(UserDao.existsEmail(user.email) < 0){

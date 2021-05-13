@@ -4,8 +4,11 @@ import com.google.gson.JsonParser
 import io.ktor.application.*
 import io.ktor.http.*
 import io.ktor.request.*
+import io.ktor.response.*
 import io.ktor.routing.*
 import io.ktor.util.pipeline.*
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import sidev.kuliah.pos.uts.app.ecommerce.data.dao.ItemDao
 import sidev.kuliah.pos.uts.app.ecommerce.data.dao.ItemStockDao
 import sidev.kuliah.pos.uts.app.ecommerce.routes.get
@@ -43,10 +46,19 @@ fun AppRoute.routeOf(
         method: HttpMethod = HttpMethod.Get,
         op: suspend (PipelineContext<Unit, ApplicationCall>.() -> Boolean) = { true }
 ): AppRoute = object: AppRoute {
+    private fun PipelineContext<Unit, ApplicationCall>.getDefaultExcHandler() = Thread.UncaughtExceptionHandler { t, e ->
+        GlobalScope.launch {
+            call.respondText("UNCAUGHT ERROR: $e")
+            throw e
+        }
+    }
     override val parent: AppRoute? = this@routeOf
     override val method: HttpMethod = method
     override fun url(): String = url
-    override suspend fun doOp(pipeline: PipelineContext<Unit, ApplicationCall>): Boolean = op(pipeline)
+    override suspend fun doOp(pipeline: PipelineContext<Unit, ApplicationCall>): Boolean {
+        Thread.setDefaultUncaughtExceptionHandler(pipeline.getDefaultExcHandler())
+        return op(pipeline)
+    }
 }
 
 fun AppRoute.get(

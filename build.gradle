@@ -21,6 +21,16 @@ sourceSets {
     main.resources.srcDirs = ['resources']
     test.resources.srcDirs = ['testresources']
 }
+///*
+jar {
+    baseName 'simple-ecommerce-0.0.1'
+    manifest {
+        attributes 'Main-Class': 'sidev.kuliah.pos.uts.app.ecommerce.ApplicationKt'
+    }
+
+    from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
+}
+// */
 
 repositories {
     mavenLocal()

@@ -1,0 +1,3 @@
+docker exec -it ktor-run curl --request DELETE -H "Content-Type:application/json"  "http://127.1.0.1:8080/dbconf/all"
+docker exec -it ktor-run curl --request POST -H "Content-Type:application/json" -d "{\"name\":\"mas\",\"password\":\"ereh\",\"email\":\"m@a.a\",\"roleId\":2,\"balance\":65700}" "http://127.1.0.1:8080/auth/signup"
+docker exec -it ktor-run curl --request POST -H "Authorization:ruhiy58gt97unk30io8u97s2m204nb4hhk5o8kgyk139m1kl4jy" -d "{\"topup\":0,\"userId\":1}" "http://127.1.0.1:8080/payment/topup"

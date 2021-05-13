@@ -13,24 +13,16 @@ import org.jetbrains.exposed.sql.transactions.transaction
 import org.slf4j.event.Level
 import sidev.kuliah.pos.uts.app.ecommerce.data.dao.RoleDao
 import sidev.kuliah.pos.uts.app.ecommerce.data.dao.TransactionStatusDao
-import sidev.kuliah.pos.uts.app.ecommerce.data.dao.UserDao
 import sidev.kuliah.pos.uts.app.ecommerce.data.db.*
 import sidev.kuliah.pos.uts.app.ecommerce.data.model.Datas
-import sidev.kuliah.pos.uts.app.ecommerce.data.model.Role
-import sidev.kuliah.pos.uts.app.ecommerce.data.model.User
-import sidev.kuliah.pos.uts.app.ecommerce.data.model.UserDetail
-import sidev.kuliah.pos.uts.app.ecommerce.routes.authRoutes
-import sidev.kuliah.pos.uts.app.ecommerce.routes.itemRoutes
-import sidev.kuliah.pos.uts.app.ecommerce.routes.paymentRoutes
-import sidev.kuliah.pos.uts.app.ecommerce.routes.transactionRoutes
-import sidev.kuliah.pos.uts.app.ecommerce.util.Const
-import sidev.kuliah.pos.uts.app.ecommerce.util.Util
+import sidev.kuliah.pos.uts.app.ecommerce.routes.*
 
 fun main(args: Array<String>): Unit = io.ktor.server.netty.EngineMain.main(args)
 
 @Suppress("unused") // Referenced in application.conf
 @kotlin.jvm.JvmOverloads
 fun Application.module(testing: Boolean = false, recreateTable: Boolean = false) {
+
     install(CallLogging) {
         level = Level.INFO
         filter { call -> call.request.path().startsWith("/") }
@@ -40,10 +32,10 @@ fun Application.module(testing: Boolean = false, recreateTable: Boolean = false)
         json()
     }
 
-    registerDummyRoutes()
+    registerDefaultRoutes()
     initDb(recreateTable)
-    if(recreateTable)
-        initDbConfig()
+    //if(recreateTable)
+    initDbConfig()
     registerRoutes()
 
 /*
@@ -72,11 +64,17 @@ fun Application.module(testing: Boolean = false, recreateTable: Boolean = false)
 
 
 fun initDb(dropFirst: Boolean = false){
-    val url = "jdbc:mysql://admin@127.0.0.1:3306/mytestdb" //?useUnicode=true&serverTimezone=UTC"
+    //val url = "jdbc:mysql://admin@127.0.0.1:3306/mytestdb" //?useUnicode=true&serverTimezone=UTC"
+    val url = "jdbc:mysql://mysql1:3306/mytestdb" //?useUnicode=true&serverTimezone=UTC"
+    //val url = "jdbc:mysql://127.0.0.1:3306/mytestdb" //?useUnicode=true&serverTimezone=UTC"
     //val url = "jdbc:mysql://root:web@localhost:3306/mytestdb?useUnicode=true&serverTimezone=UTC"
     val driver = "com.mysql.cj.jdbc.Driver"
+    val pswd = "abc123"
+    val user = "admin"
+    val host = "127.0.0.1"
+    //val pswd = ""
     //val driver = "com.mysql.jdbc.Driver"
-    Database.connect(url, driver)
+    Database.connect(url, driver, password = pswd, user = user)
     //com.mysql.jdbc.Driver
     //Database.connect("jdbc:mysql://127.0.0.1:3306/mytestdb", driver = driver, user = "admin")
 
@@ -94,24 +92,18 @@ fun initDb(dropFirst: Boolean = false){
     }
 }
 
-fun initDbConfig(){
-    RoleDao.batchInsert(*Datas.roles)
-    TransactionStatusDao.batchInsert(*Datas.transStatus)
-}
-
 fun Application.registerRoutes(){
     routing {
         authRoutes()
         itemRoutes()
         transactionRoutes()
         paymentRoutes()
+        dbConfigRoutes()
     }
 }
 
-fun Application.registerDummyRoutes(){
+fun Application.registerDefaultRoutes(){
     routing {
-        get("/"){
-            call.respondText("Halo bro!")
-        }
+        defaultRoutes()
     }
 }
