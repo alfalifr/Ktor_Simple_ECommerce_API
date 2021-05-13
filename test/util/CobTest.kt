@@ -78,8 +78,10 @@ class CobTest {
             it += Util.dockerCurl(DbConfigRoutes.RecreateAll)
             it += Util.dockerCurl(AuthRoutes.SignUp, TestData.signupData_seller1)
             it += Util.dockerCurl(AuthRoutes.SignUp, TestData.signupData_seller2)
+            it += Util.dockerCurl(AuthRoutes.SignUp, TestData.signupData_buyer)
             it += Util.dockerCurl(AuthRoutes.Login, params = listOf(*TestData.loginData1).formUrlEncode())
             it += Util.dockerCurl(AuthRoutes.Login, params = listOf(*TestData.loginData2).formUrlEncode())
+            it += Util.dockerCurl(AuthRoutes.Login, params = listOf(*TestData.loginDataBuyer).formUrlEncode())
 
             it += Util.dockerCurl(ItemRoutes.PostItem, TestData.postItemData1, headers = arrayOf(HttpHeaders.Authorization to "<seller1_token>"))
             it += Util.dockerCurl(ItemRoutes.PostItem, TestData.postItemData2, headers = arrayOf(HttpHeaders.Authorization to "<seller2_token>"))
