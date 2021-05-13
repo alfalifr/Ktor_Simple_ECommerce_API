@@ -1,7 +1,7 @@
 #!/bin/bash
 
 echo "Starting build..."
-./gradlew installDist
+#./gradlew installDist
 
 docker stop ktor-run
 docker rm ktor-run
