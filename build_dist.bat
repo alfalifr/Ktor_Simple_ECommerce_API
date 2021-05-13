@@ -1,3 +1,4 @@
+echo Starting build...
 call gradlew installDist
 
 if errorlevel 1 goto error
